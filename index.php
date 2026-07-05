@@ -75,6 +75,46 @@ declare(strict_types=1);
 
     <main class="workspace">
         <header class="topbar">
+            <div class="topbar-actions">
+                <button id="menuToggleBtn" class="menu-toggle" type="button" aria-expanded="false" aria-controls="appMenu" title="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div id="appMenu" class="app-menu" hidden>
+                    <button type="button" class="app-menu-item" data-menu-action="export-pdf">Gerar PDF do projeto</button>
+                    <div class="app-menu-group">
+                        <button type="button" class="app-menu-item app-menu-parent" data-menu-action="toggle-bars">Barras de ferramentas</button>
+                        <div class="app-menu-submenu">
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-main-toolbar">Barra principal</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-template-toolbar">Barra de modelos</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-symbol-toolbar">Barra de simbolos</button>
+                        </div>
+                    </div>
+                    <div class="app-menu-group">
+                        <button type="button" class="app-menu-item app-menu-parent" data-menu-action="toggle-panels">Painéis</button>
+                        <div class="app-menu-submenu">
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-sidebar">Barra lateral</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-inspector">Barra de propriedades</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-distribution">Quadro de distribuição</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-singleline">Diagrama unifilar</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="toggle-materials">Materiais e orçamento</button>
+                        </div>
+                    </div>
+                    <div class="app-menu-group">
+                        <button type="button" class="app-menu-item app-menu-parent" data-menu-action="toggle-text-size">Tamanho da letra</button>
+                        <div class="app-menu-submenu">
+                            <button type="button" class="app-menu-subitem" data-menu-action="text-size-minimum">Mínimo</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="text-size-small">Pequeno</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="text-size-medium">MÃ©dio</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="text-size-large">Grande</button>
+                        </div>
+                    </div>
+                    <button type="button" class="app-menu-item" data-menu-action="show-shortcuts">Mostrar teclas de atalho</button>
+                    <button type="button" class="app-menu-item" data-menu-action="show-symbols">Mostrar simbolos da NBR</button>
+                    <button type="button" class="app-menu-item" data-menu-action="edit-prices">Editar precos de equipamentos</button>
+                </div>
+            </div>
             <div class="topbar-brand">
                 <div class="woca-badge">
                     <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -133,7 +173,22 @@ declare(strict_types=1);
                     <svg viewBox="0 0 40 40"><path d="M25 14l8 6-8 6" fill="none" stroke="#e24d46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 20h-7a8 8 0 0 0 0 16" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 34l-2-2" stroke="#20b8b0" stroke-width="2"/></svg>
                 </button>
             </div>
-            <div class="toolbar-row toolbar-row-secondary">
+            <div class="toolbar-row toolbar-row-secondary toolbar-row-templates">
+                <button class="mini-icon-tool template-tool" data-action="template-bathroom" title="Projeto: banheiro">
+                    <span>Banheiro</span>
+                </button>
+                <button class="mini-icon-tool template-tool" data-action="template-bedroom" title="Projeto: quarto">
+                    <span>Quarto</span>
+                </button>
+                <button class="mini-icon-tool template-tool" data-action="template-living" title="Projeto: sala">
+                    <span>Sala</span>
+                </button>
+                <button class="mini-icon-tool template-tool" data-action="template-terrace" title="Projeto: terraço">
+                    <span>Terraco</span>
+                </button>
+                <button class="mini-icon-tool template-tool" data-action="template-qgbt" title="Projeto: quadro QGBT">
+                    <span>QGBT</span>
+                </button>
                 <button class="mini-icon-tool" data-action="preset-outlet" title="Tomada de uso geral">
                     <svg viewBox="0 0 40 40"><circle cx="15" cy="17" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 15v4M17 15v4" stroke="currentColor" stroke-width="2"/><path d="M22 9h7v18h-7" fill="none" stroke="#20b8b0" stroke-width="2"/><circle cx="25.5" cy="15" r="1.2" fill="#e24d46"/></svg>
                 </button>
@@ -181,7 +236,7 @@ declare(strict_types=1);
             </div>
 
             <aside class="inspector">
-                <section class="panel">
+                <section class="panel distribution-board-panel">
                     <h2>Propriedades</h2>
                     <form id="inspectorForm">
                         <label>Nome
@@ -214,16 +269,17 @@ declare(strict_types=1);
                             <input id="propLegend" type="checkbox">
                             Exibir na legenda
                         </label>
+                        <button id="flipHorizontalBtn" type="button" class="secondary">Girar 30°</button>
                         <button type="submit">Atualizar item</button>
                     </form>
                 </section>
 
-                <section class="panel">
+                <section class="panel single-line-panel">
                     <h2>Quadro de distribuição</h2>
                     <div id="distributionBoard" class="report-box"></div>
                 </section>
 
-                <section class="panel">
+                <section class="panel materials-panel">
                     <h2>Diagrama unifilar</h2>
                     <div id="singleLineDiagram" class="report-box"></div>
                 </section>
@@ -235,6 +291,65 @@ declare(strict_types=1);
             </aside>
         </section>
     </main>
+</div>
+
+<div id="menuBackdrop" class="menu-backdrop" hidden></div>
+
+<div id="priceModal" class="modal-shell" hidden>
+    <div class="modal-backdrop" data-close-modal="prices"></div>
+    <section class="modal-card price-modal-card" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
+        <div class="modal-header">
+            <div>
+                <h2 id="priceModalTitle">Precos de equipamentos e materiais</h2>
+                <p class="muted">Atualize os valores usados no orcamento do projeto atual.</p>
+            </div>
+            <button id="closePriceModalBtn" class="modal-close" type="button" aria-label="Fechar">x</button>
+        </div>
+        <form id="priceEditorForm" class="price-editor-form">
+            <div class="price-editor-grid">
+                <section>
+                    <h3>Equipamentos</h3>
+                    <div id="equipmentPriceList" class="price-list"></div>
+                </section>
+                <section>
+                    <h3>Materiais</h3>
+                    <div id="materialPriceList" class="price-list"></div>
+                </section>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="cancelPriceModalBtn" class="secondary">Cancelar</button>
+                <button type="submit">Salvar precos</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<div id="shortcutsModal" class="modal-shell" hidden>
+    <div class="modal-backdrop" data-close-modal="shortcuts"></div>
+    <section class="modal-card shortcuts-modal-card" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle">
+        <div class="modal-header">
+            <div>
+                <h2 id="shortcutsModalTitle">Teclas de atalho</h2>
+                <p class="muted">Atalhos disponiveis no editor.</p>
+            </div>
+            <button id="closeShortcutsModalBtn" class="modal-close" type="button" aria-label="Fechar">x</button>
+        </div>
+        <div id="shortcutsList" class="shortcuts-list"></div>
+    </section>
+</div>
+
+<div id="symbolsModal" class="modal-shell" hidden>
+    <div class="modal-backdrop" data-close-modal="symbols"></div>
+    <section class="modal-card symbols-modal-card" role="dialog" aria-modal="true" aria-labelledby="symbolsModalTitle">
+        <div class="modal-header">
+            <div>
+                <h2 id="symbolsModalTitle">Simbolos da NBR</h2>
+                <p class="muted">Todos os simbolos cadastrados no sistema.</p>
+            </div>
+            <button id="closeSymbolsModalBtn" class="modal-close" type="button" aria-label="Fechar">x</button>
+        </div>
+        <div id="symbolsGallery" class="symbols-gallery"></div>
+    </section>
 </div>
 
 <template id="reportTemplate">

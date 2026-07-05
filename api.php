@@ -116,6 +116,52 @@ foreach ($technicalPresets as $preset) {
 file_put_contents($dbFile, json_encode($db, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 $action = $_GET['action'] ?? 'bootstrap';
 
+if ($action === 'downloadReportPdf' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $payload = json_decode((string) file_get_contents('php://input'), true);
+    if (!is_array($payload)) {
+        http_response_code(422);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Payload inválido'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $utility = null;
+    $utilityId = (int) ($payload['utility_id'] ?? 0);
+    foreach ($db['utilities'] as $candidate) {
+        if ((int) $candidate['id'] === $utilityId) {
+            $utility = $candidate;
+            break;
+        }
+    }
+
+    $projectName = (string) ($payload['name'] ?? 'Projeto');
+    $items = $payload['floorPlan']['items'] ?? [];
+    $circuits = buildCircuitsPdf($items);
+    $materials = buildMaterialsPdf($circuits, $items);
+
+    $lines = [];
+    $lines[] = 'Concessionaria: ' . ($utility['name'] ?? '-');
+    $lines[] = 'Tensao: ' . ($utility['voltage_level'] ?? '-');
+    $lines[] = '';
+    $lines[] = 'Quadro de distribuicao';
+    foreach ($circuits as $circuit) {
+        $lines[] = sprintf('%s | %s | %sW | %s', $circuit['label'], $circuit['type'], $circuit['totalPower'], $circuit['breaker']);
+    }
+    $lines[] = '';
+    $lines[] = 'Lista de materiais';
+    foreach ($materials as $material) {
+        $lines[] = sprintf('%s | %s %s | R$ %.2f', $material['description'], $material['quantity'], $material['unit'], $material['subtotal']);
+    }
+
+    $pdf = buildSimplePdf($projectName, $lines);
+    $safeName = preg_replace('/[^A-Za-z0-9_-]+/', '_', $projectName) ?: 'projeto';
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . $safeName . '.pdf"');
+    header('Content-Length: ' . strlen($pdf));
+    echo $pdf;
+    exit;
+}
+
 if ($action === 'bootstrap') {
     echo json_encode($db, JSON_UNESCAPED_UNICODE);
     exit;
@@ -147,6 +193,31 @@ if ($action === 'saveProject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     file_put_contents($dbFile, json_encode($db, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     echo json_encode(['success' => true, 'project' => $payload], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'saveCatalog' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $payload = json_decode((string) file_get_contents('php://input'), true);
+    if (!is_array($payload)) {
+        http_response_code(422);
+        echo json_encode(['error' => 'Payload invÃ¡lido']);
+        exit;
+    }
+
+    if (isset($payload['materials']) && is_array($payload['materials'])) {
+        $db['materials'] = array_values($payload['materials']);
+    }
+
+    if (isset($payload['equipment_presets']) && is_array($payload['equipment_presets'])) {
+        $db['equipment_presets'] = array_values($payload['equipment_presets']);
+    }
+
+    file_put_contents($dbFile, json_encode($db, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    echo json_encode([
+        'success' => true,
+        'materials' => $db['materials'],
+        'equipment_presets' => $db['equipment_presets']
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
