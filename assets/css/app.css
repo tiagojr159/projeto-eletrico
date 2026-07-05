@@ -230,12 +230,15 @@ button.ghost {
     border: 1px solid rgba(191, 90, 54, 0.12);
     border-top: none;
     border-radius: 0 0 18px 18px;
+    touch-action: none;
+    -ms-touch-action: none;
 }
 
 #planCanvas {
     display: block;
     background: transparent;
     transform-origin: top left;
+    touch-action: none;
 }
 
 .inspector {
@@ -429,5 +432,28 @@ button.ghost {
 
     .inspector {
         order: 4;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .canvas-viewport {
+        min-height: 60vh;
+    }
+
+    .icon-tool,
+    .mini-icon-tool {
+        width: 52px;
+        height: 52px;
+    }
+
+    .mini-icon-tool {
+        width: 48px;
+        height: 48px;
+    }
+
+    .icon-tool svg,
+    .mini-icon-tool svg {
+        width: 40px;
+        height: 40px;
     }
 }

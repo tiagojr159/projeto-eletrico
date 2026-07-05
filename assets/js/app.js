@@ -1,6 +1,8 @@
 const GRID_SIZE = 20;
 const CIRCUIT_SEQUENCE = "abcdefghijklmnopqrstuvwxyz";
 const SELECTION_HANDLE_SIZE = 10;
+const TOUCH_HANDLE_HIT_SIZE = 28;
+const TOUCH_ITEM_HIT_PADDING = 18;
 const symbolImageCache = new Map();
 
 const BRAZILIAN_ELECTRICAL_RULES = {
@@ -62,6 +64,7 @@ const state = {
     selectionAction: null,
     selectionHandle: null,
     selectionStart: null,
+    activePointerId: null,
 };
 
 
@@ -235,10 +238,11 @@ function bindEvents() {
         render();
     });
 
-    canvas.addEventListener("mousedown", onCanvasMouseDown);
-    canvas.addEventListener("mousemove", onCanvasMouseMove);
-    canvas.addEventListener("mouseup", onCanvasMouseUp);
-    canvas.addEventListener("mouseleave", onCanvasMouseUp);
+    canvas.addEventListener("pointerdown", onCanvasPointerDown);
+    canvas.addEventListener("pointermove", onCanvasPointerMove);
+    canvas.addEventListener("pointerup", onCanvasPointerUp);
+    canvas.addEventListener("pointercancel", onCanvasPointerUp);
+    canvas.addEventListener("lostpointercapture", onCanvasPointerUp);
     window.addEventListener("keydown", event => {
         if (event.key === "Delete" || event.key === "Backspace") {
             const active = document.activeElement;
@@ -553,7 +557,14 @@ function redo() {
     render();
 }
 
-function onCanvasMouseDown(event) {
+function onCanvasPointerDown(event) {
+    if (state.activePointerId !== null && state.activePointerId !== event.pointerId) return;
+    state.activePointerId = event.pointerId;
+    if (canvas.setPointerCapture) {
+        canvas.setPointerCapture(event.pointerId);
+    }
+    event.preventDefault();
+
     const point = canvasPoint(event);
     if (state.currentTool === "pan") {
         state.draggingCanvas = true;
@@ -596,7 +607,10 @@ function onCanvasMouseDown(event) {
     state.drawingStart = point;
 }
 
-function onCanvasMouseMove(event) {
+function onCanvasPointerMove(event) {
+    if (state.activePointerId !== null && state.activePointerId !== event.pointerId) return;
+    event.preventDefault();
+
     const point = canvasPoint(event);
     if (state.draggingCanvas && state.panStart) {
         viewport.scrollLeft = state.panStart.left - (event.clientX - state.panStart.x);
@@ -617,10 +631,14 @@ function onCanvasMouseMove(event) {
     }
 }
 
-function onCanvasMouseUp(event) {
+function onCanvasPointerUp(event) {
+    if (state.activePointerId !== null && event.pointerId !== undefined && state.activePointerId !== event.pointerId) return;
+    event.preventDefault();
+
     if (state.draggingCanvas) {
         state.draggingCanvas = false;
         state.panStart = null;
+        releaseCanvasPointer(event);
         return;
     }
 
@@ -628,15 +646,28 @@ function onCanvasMouseUp(event) {
         state.selectionAction = null;
         state.selectionHandle = null;
         state.selectionStart = null;
+        releaseCanvasPointer(event);
         return;
     }
 
-    if (!state.drawingStart) return;
+    if (!state.drawingStart) {
+        releaseCanvasPointer(event);
+        return;
+    }
     const end = canvasPoint(event);
     addDrawnItem(state.currentTool, state.drawingStart, end);
     state.drawingStart = null;
     computeDerivedData();
     render();
+    releaseCanvasPointer(event);
+}
+
+function releaseCanvasPointer(event) {
+    if (state.activePointerId === null) return;
+    if (event?.pointerId !== undefined && canvas.hasPointerCapture?.(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+    }
+    state.activePointerId = null;
 }
 
 function canvasPoint(event) {
@@ -705,7 +736,7 @@ function findItemAt(point) {
     const items = [...state.currentProject.floorPlan.items].reverse();
     return items.find(item => {
         const bounds = getItemBounds(item);
-        const padding = item.kind === "electrical" ? 14 : 4;
+        const padding = item.kind === "electrical" ? TOUCH_ITEM_HIT_PADDING : 10;
         return point.x >= bounds.x - padding
             && point.x <= bounds.x + bounds.width + padding
             && point.y >= bounds.y - padding
@@ -767,7 +798,7 @@ function getSelectionHandles(item) {
 }
 
 function findSelectionHandleAt(point, item) {
-    const hitSize = SELECTION_HANDLE_SIZE / 2 + 4;
+    const hitSize = Math.max(SELECTION_HANDLE_SIZE / 2 + 4, TOUCH_HANDLE_HIT_SIZE / 2);
     return getSelectionHandles(item).find(handle =>
         Math.abs(point.x - handle.x) <= hitSize && Math.abs(point.y - handle.y) <= hitSize
     )?.name || null;
