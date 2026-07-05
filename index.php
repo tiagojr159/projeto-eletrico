@@ -49,8 +49,8 @@ declare(strict_types=1);
                 <button data-tool="pan" class="tool">Mover tela</button>
             </div>
             <div class="button-row">
-                <button id="undoBtn" class="secondary">Desfazer</button>
-                <button id="redoBtn" class="secondary">Refazer</button>
+                <button data-control="undo" class="secondary">Desfazer</button>
+                <button data-control="redo" class="secondary">Refazer</button>
             </div>
         </section>
 
@@ -67,24 +67,107 @@ declare(strict_types=1);
             <h2>Resumo automático</h2>
             <div id="summaryCards" class="summary-cards"></div>
             <div class="button-row stacked">
-                <button id="autoRouteBtn" class="secondary">Gerar ligações</button>
-                <button id="generateReportBtn" class="secondary">Gerar relatório</button>
+                <button data-control="autoroute" class="secondary">Gerar ligações</button>
+                <button data-control="report" class="secondary">Gerar relatório</button>
             </div>
         </section>
     </aside>
 
     <main class="workspace">
         <header class="topbar">
-            <div>
-                <input id="projectNameInput" class="project-title" type="text" placeholder="Nome do projeto">
-            </div>
-            <div class="topbar-actions">
-                <button id="zoomOutBtn" class="ghost">-</button>
-                <span id="zoomLabel">100%</span>
-                <button id="zoomInBtn" class="ghost">+</button>
-                <button id="fitBtn" class="ghost">Centralizar</button>
+            <div class="topbar-brand">
+                <div class="woca-badge">
+                    <svg viewBox="0 0 48 48" aria-hidden="true">
+                        <path d="M10 12h20l8 8v16H10z" fill="none" stroke="currentColor" stroke-width="2.4"/>
+                        <path d="M14 28l6-8 6 6 6-10 4 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>WOCA</span>
+                </div>
+                <input id="projectNameInput" class="project-title" type="text" placeholder="Projeto sem título">
             </div>
         </header>
+        <section class="drawing-toolbar">
+            <div class="toolbar-row toolbar-row-main">
+                <button class="icon-tool active" data-tool="select" title="Selecionar">
+                    <svg viewBox="0 0 40 40"><rect x="8" y="8" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 20h-4M34 20h-4M20 6v-4M20 34v-4" stroke="#e24d46" stroke-width="1.8"/><path d="M8 8l-4-4M32 8l4-4M8 32l-4 4M32 32l4 4" stroke="#e24d46" stroke-width="1.8"/></svg>
+                </button>
+                <button class="icon-tool" data-tool="room" title="Ambiente">
+                    <svg viewBox="0 0 40 40"><path d="M8 30V14h10l4-6h10v22" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 24h24" stroke="#20b8b0" stroke-width="2"/><path d="M13 10l4 6" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" data-tool="door" title="Porta">
+                    <svg viewBox="0 0 40 40"><path d="M10 30V8h16v22" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 18v8" stroke="#e24d46" stroke-width="2"/><circle cx="19" cy="19" r="1.2" fill="#20b8b0"/></svg>
+                </button>
+                <button class="icon-tool" data-tool="wall" title="Parede">
+                    <svg viewBox="0 0 40 40"><path d="M8 30L28 10" stroke="currentColor" stroke-width="2"/><path d="M10 32L30 12" stroke="#20b8b0" stroke-width="2"/><path d="M7 33L33 7" stroke="#e24d46" stroke-width="2"/><path d="M27 8l6-1-1 6" fill="none" stroke="#e24d46" stroke-width="1.8"/></svg>
+                </button>
+                <button class="icon-tool" data-tool="window" title="Janela">
+                    <svg viewBox="0 0 40 40"><path d="M8 28h24M14 12v20M26 12v20" stroke="currentColor" stroke-width="2"/><path d="M8 12h24" stroke="#20b8b0" stroke-width="2"/><path d="M22 12l8 8" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" data-tool="electrical" title="Tomada">
+                    <svg viewBox="0 0 40 40"><circle cx="16" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 14v4M19 14v4" stroke="currentColor" stroke-width="2"/><path d="M20 24v8" stroke="#e24d46" stroke-width="2"/><path d="M26 11h6v18h-6" fill="none" stroke="#20b8b0" stroke-width="2"/><circle cx="29" cy="17" r="1.2" fill="#e24d46"/></svg>
+                </button>
+                <button class="icon-tool" data-action="preset-light" title="Luminária">
+                    <svg viewBox="0 0 40 40"><path d="M20 10a7 7 0 0 1 7 7c0 3-1.5 4.2-3 6v3h-8v-3c-1.5-1.8-3-3-3-6a7 7 0 0 1 7-7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 29h6M18 32h4" stroke="#20b8b0" stroke-width="2"/><circle cx="11" cy="10" r="5.5" fill="#20b8b0"/><text x="11" y="12.5" text-anchor="middle" font-size="8" fill="#fff" font-family="Arial">A</text></svg>
+                </button>
+                <button class="icon-tool" data-action="preset-switch" title="Interruptor">
+                    <svg viewBox="0 0 40 40"><path d="M12 10h10v20H12z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 13v6" stroke="#20b8b0" stroke-width="2"/><path d="M26 12h6v18h-6" fill="none" stroke="#e24d46" stroke-width="2"/><circle cx="29" cy="17" r="1.2" fill="#20b8b0"/></svg>
+                </button>
+                <button class="icon-tool" data-action="preset-distribution" title="Quadro">
+                    <svg viewBox="0 0 40 40"><path d="M10 8h18v24H10z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 16h18M16 8v24M22 8v24" stroke="#20b8b0" stroke-width="1.8"/><path d="M14 28h10" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" data-action="legend" title="Legenda">
+                    <svg viewBox="0 0 40 40"><path d="M8 12h24M8 20h24M8 28h10M22 28h10" stroke="currentColor" stroke-width="2"/><path d="M12 10v22M28 10v22" stroke="#20b8b0" stroke-width="1.8"/><path d="M18 10v22" stroke="#e24d46" stroke-width="1.8"/></svg>
+                </button>
+                <button class="icon-tool compact-count" data-action="toggle-tue" title="TUE"><span>1</span><small>TUE</small></button>
+                <button class="icon-tool compact-count" data-action="toggle-tug" title="TUG"><span>2</span><small>TUG</small></button>
+                <button class="icon-tool" id="generateReportBtn" title="PDF">
+                    <svg viewBox="0 0 40 40"><path d="M10 8h20v24H10z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 12h10M15 18h10M15 24h10" stroke="#e24d46" stroke-width="2"/><path d="M24 8v8h8" fill="none" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" id="deleteBtn" title="Apagar">
+                    <svg viewBox="0 0 40 40"><path d="M13 12h14" stroke="currentColor" stroke-width="2"/><path d="M16 12V9h8v3" stroke="#20b8b0" stroke-width="2"/><path d="M14 15h12l-1 16H15z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18 19v8M22 19v8" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" id="undoBtn" title="Desfazer">
+                    <svg viewBox="0 0 40 40"><path d="M15 14l-8 6 8 6" fill="none" stroke="#e24d46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 20h7a8 8 0 0 1 0 16" fill="none" stroke="currentColor" stroke-width="2"/><path d="M28 34l2-2" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" id="redoBtn" title="Refazer">
+                    <svg viewBox="0 0 40 40"><path d="M25 14l8 6-8 6" fill="none" stroke="#e24d46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 20h-7a8 8 0 0 0 0 16" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 34l-2-2" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+            </div>
+            <div class="toolbar-row toolbar-row-secondary">
+                <button class="mini-icon-tool" data-action="preset-outlet" title="Tomada de uso geral">
+                    <svg viewBox="0 0 40 40"><circle cx="15" cy="17" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 15v4M17 15v4" stroke="currentColor" stroke-width="2"/><path d="M22 9h7v18h-7" fill="none" stroke="#20b8b0" stroke-width="2"/><circle cx="25.5" cy="15" r="1.2" fill="#e24d46"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="preset-ac" title="Ar-condicionado">
+                    <svg viewBox="0 0 40 40"><path d="M10 13h20v8H10z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 13l4-5h7" stroke="#e24d46" stroke-width="2"/><path d="M12 24h16" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="preset-shower" title="Chuveiro">
+                    <svg viewBox="0 0 40 40"><path d="M12 18a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 18v8" stroke="#20b8b0" stroke-width="2"/><path d="M16 26l-2 4M20 26l-2 4M24 26l-2 4" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="preset-microwave" title="Micro-ondas">
+                    <svg viewBox="0 0 40 40"><rect x="9" y="12" width="22" height="16" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 16h11" stroke="#20b8b0" stroke-width="2"/><path d="M26 16v8M29 16v8" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="preset-washer" title="Máquina de lavar">
+                    <svg viewBox="0 0 40 40"><rect x="11" y="8" width="18" height="24" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="21" r="6" fill="none" stroke="#20b8b0" stroke-width="2"/><path d="M14 12h2M18 12h2" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" id="autoRouteBtn" title="Gerar ligações">
+                    <svg viewBox="0 0 40 40"><path d="M10 20h8l5-6 7 8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="20" r="3" fill="#e24d46"/><circle cx="23" cy="14" r="3" fill="#20b8b0"/><circle cx="30" cy="22" r="3" fill="#20b8b0"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-tool="pan" title="Mover tela">
+                    <svg viewBox="0 0 40 40"><path d="M20 8v24M8 20h24" stroke="currentColor" stroke-width="2"/><path d="M20 8l-4 4M20 8l4 4M32 20l-4-4M32 20l-4 4M20 32l-4-4M20 32l4-4M8 20l4-4M8 20l4 4" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" id="zoomOutBtn" title="Zoom menos">
+                    <svg viewBox="0 0 40 40"><circle cx="17" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 17h8" stroke="#e24d46" stroke-width="2"/><path d="M23 23l7 7" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" id="zoomInBtn" title="Zoom mais">
+                    <svg viewBox="0 0 40 40"><circle cx="17" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 17h8M17 13v8" stroke="#e24d46" stroke-width="2"/><path d="M23 23l7 7" stroke="#20b8b0" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" id="fitBtn" title="Centralizar">
+                    <svg viewBox="0 0 40 40"><path d="M8 14V8h6M32 14V8h-6M8 26v6h6M32 26v6h-6" fill="none" stroke="#e24d46" stroke-width="2"/><rect x="14" y="14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                </button>
+                <span class="zoom-chip" id="zoomLabel">100%</span>
+            </div>
+            <div class="toolbar-row toolbar-row-symbols" id="symbolToolbar"></div>
+        </section>
 
         <section class="canvas-layout">
             <div class="canvas-panel">

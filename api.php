@@ -37,16 +37,16 @@ if (!file_exists($dbFile)) {
             ['id' => 8, 'name' => 'Quadro de distribuição', 'unit' => 'un', 'price' => 180.00]
         ],
         'equipment_presets' => [
-            ['id' => 1, 'name' => 'Tomada de uso geral', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUG'],
-            ['id' => 2, 'name' => 'Chuveiro 4400W', 'category' => 'Chuveiro', 'power' => 4400, 'voltage' => 220, 'height' => 'Alta', 'circuitType' => 'Chuveiro'],
-            ['id' => 3, 'name' => 'Micro-ondas 1200W', 'category' => 'Uso específico', 'power' => 1200, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'TUE'],
-            ['id' => 4, 'name' => 'Máquina de lavar 1000W', 'category' => 'Uso específico', 'power' => 1000, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUE'],
-            ['id' => 5, 'name' => 'Ar-condicionado 9000 BTU', 'category' => 'Climatização', 'power' => 1200, 'voltage' => 220, 'height' => 'Alta', 'circuitType' => 'Climatização'],
-            ['id' => 6, 'name' => 'Ar-condicionado 12000 BTU', 'category' => 'Climatização', 'power' => 1450, 'voltage' => 220, 'height' => 'Alta', 'circuitType' => 'Climatização'],
-            ['id' => 7, 'name' => 'Forno elétrico 3000W', 'category' => 'Uso específico', 'power' => 3000, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'TUE'],
-            ['id' => 8, 'name' => 'Luminária LED', 'category' => 'Iluminação', 'power' => 18, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação'],
-            ['id' => 9, 'name' => 'Geladeira 700W', 'category' => 'Uso específico', 'power' => 700, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUE'],
-            ['id' => 10, 'name' => 'Torneira elétrica 5500W', 'category' => 'Uso específico', 'power' => 5500, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'TUE']
+            ['id' => 1, 'name' => 'Tomada de uso geral', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUG', 'symbol' => 'outlet'],
+            ['id' => 2, 'name' => 'Chuveiro 4400W', 'category' => 'Chuveiro', 'power' => 4400, 'voltage' => 220, 'height' => 'Alta', 'circuitType' => 'TUE', 'symbol' => 'shower'],
+            ['id' => 3, 'name' => 'Micro-ondas 1200W', 'category' => 'Uso específico', 'power' => 1200, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'TUE', 'symbol' => 'specific-outlet'],
+            ['id' => 4, 'name' => 'Máquina de lavar 1000W', 'category' => 'Uso específico', 'power' => 1000, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUE', 'symbol' => 'specific-outlet'],
+            ['id' => 5, 'name' => 'Ar-condicionado 9000 BTU', 'category' => 'Climatização', 'power' => 1200, 'voltage' => 220, 'height' => 'Alta', 'circuitType' => 'TUE', 'symbol' => 'ac'],
+            ['id' => 6, 'name' => 'Ar-condicionado 12000 BTU', 'category' => 'Climatização', 'power' => 1450, 'voltage' => 220, 'height' => 'Alta', 'circuitType' => 'TUE', 'symbol' => 'ac'],
+            ['id' => 7, 'name' => 'Forno elétrico 3000W', 'category' => 'Uso específico', 'power' => 3000, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'TUE', 'symbol' => 'specific-outlet'],
+            ['id' => 8, 'name' => 'Ponto de luz', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação', 'symbol' => 'light'],
+            ['id' => 9, 'name' => 'Geladeira 700W', 'category' => 'Uso específico', 'power' => 700, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUE', 'symbol' => 'specific-outlet'],
+            ['id' => 10, 'name' => 'Torneira elétrica 5500W', 'category' => 'Uso específico', 'power' => 5500, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'TUE', 'symbol' => 'shower']
         ],
         'projects' => [
             [
@@ -68,6 +68,52 @@ if (!file_exists($dbFile)) {
 }
 
 $db = json_decode((string) file_get_contents($dbFile), true);
+$technicalPresets = [
+    ['name' => 'Ponto de luz incandescente no teto', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação', 'symbol' => 'light-ceiling'],
+    ['name' => 'Ponto de luz incandescente na parede', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Iluminação', 'symbol' => 'light-wall'],
+    ['name' => 'Ponto de luz não embutido', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação', 'symbol' => 'light-not-embedded'],
+    ['name' => 'Ponto de luz embutido', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação', 'symbol' => 'light-embedded'],
+    ['name' => 'Ponto de luz fluorescente não embutido', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação', 'symbol' => 'fluorescent-not-embedded'],
+    ['name' => 'Ponto de luz fluorescente embutido', 'category' => 'Iluminação', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Iluminação', 'symbol' => 'fluorescent-embedded'],
+    ['name' => 'Circuito que sobe', 'category' => 'Condutor', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Infraestrutura', 'symbol' => 'circuit-up'],
+    ['name' => 'Circuito que desce', 'category' => 'Condutor', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Infraestrutura', 'symbol' => 'circuit-down'],
+    ['name' => 'Circuito que passa', 'category' => 'Condutor', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Infraestrutura', 'symbol' => 'circuit-pass'],
+    ['name' => 'Interruptor de 1 seção', 'category' => 'Interruptor', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comando', 'symbol' => 'switch-1'],
+    ['name' => 'Tomada de luz baixa', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'TUG', 'symbol' => 'outlet-light-low'],
+    ['name' => 'Tomada de luz média alta', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'TUG', 'symbol' => 'outlet-light-medium'],
+    ['name' => 'Tomada de luz alta', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Alta', 'circuitType' => 'TUG', 'symbol' => 'outlet-light-high'],
+    ['name' => 'Tomada de luz no piso', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Piso', 'circuitType' => 'TUG', 'symbol' => 'light-outlet-floor'],
+    ['name' => 'Tomada de luz no teto', 'category' => 'Tomada', 'power' => 100, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'TUG', 'symbol' => 'light-outlet-ceiling'],
+    ['name' => 'Tomada de força na parede', 'category' => 'Tomada de força', 'power' => 600, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'TUG', 'symbol' => 'power-outlet-wall'],
+    ['name' => 'Tomada de força no piso', 'category' => 'Tomada de força', 'power' => 600, 'voltage' => 127, 'height' => 'Piso', 'circuitType' => 'TUG', 'symbol' => 'power-outlet-floor'],
+    ['name' => 'Tomada de força no teto', 'category' => 'Tomada de força', 'power' => 600, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'TUG', 'symbol' => 'power-outlet-ceiling'],
+    ['name' => 'Tomada para rádio e TV', 'category' => 'Comunicação', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comunicação', 'symbol' => 'radio-tv'],
+    ['name' => 'Caixa de passagem', 'category' => 'Caixa', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Infraestrutura', 'symbol' => 'passage-box'],
+    ['name' => 'Quadro parcial de luz ou força', 'category' => 'Quadro', 'power' => 0, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'Quadro', 'symbol' => 'partial-board'],
+    ['name' => 'Quadro geral de luz ou força não embutido', 'category' => 'Quadro', 'power' => 0, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'Quadro', 'symbol' => 'main-board-not-embedded'],
+    ['name' => 'Quadro geral de luz ou força embutido', 'category' => 'Quadro', 'power' => 0, 'voltage' => 220, 'height' => 'Média', 'circuitType' => 'Quadro', 'symbol' => 'main-board-embedded'],
+    ['name' => 'Caixa de telefone', 'category' => 'Comunicação', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comunicação', 'symbol' => 'phone-box'],
+    ['name' => 'Eletroduto no teto ou na parede', 'category' => 'Eletroduto', 'power' => 0, 'voltage' => 127, 'height' => 'Teto', 'circuitType' => 'Infraestrutura', 'symbol' => 'conduit-ceiling-wall'],
+    ['name' => 'Eletroduto no piso', 'category' => 'Eletroduto', 'power' => 0, 'voltage' => 127, 'height' => 'Piso', 'circuitType' => 'Infraestrutura', 'symbol' => 'conduit-floor'],
+    ['name' => 'Tubulação para telefone externo', 'category' => 'Comunicação', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comunicação', 'symbol' => 'phone-tube-external'],
+    ['name' => 'Tubulação para telefone interno', 'category' => 'Comunicação', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comunicação', 'symbol' => 'phone-tube-internal'],
+    ['name' => 'Condutores de fase, neutro, retorno e terra em eletroduto', 'category' => 'Condutor', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Infraestrutura', 'symbol' => 'conductors-fnt'],
+    ['name' => 'Botão de minuteria', 'category' => 'Comando', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comando', 'symbol' => 'minute-button'],
+    ['name' => 'Minuteria', 'category' => 'Comando', 'power' => 0, 'voltage' => 127, 'height' => 'Média', 'circuitType' => 'Comando', 'symbol' => 'minute-timer'],
+    ['name' => 'Ligação à terra', 'category' => 'Aterramento', 'power' => 0, 'voltage' => 127, 'height' => 'Baixa', 'circuitType' => 'Aterramento', 'symbol' => 'ground'],
+];
+
+$existingSymbols = array_column($db['equipment_presets'] ?? [], 'symbol');
+$nextEquipmentId = count($db['equipment_presets'] ?? []) ? (max(array_column($db['equipment_presets'], 'id')) + 1) : 1;
+foreach ($technicalPresets as $preset) {
+    if (in_array($preset['symbol'], $existingSymbols, true)) {
+        continue;
+    }
+    $preset['id'] = $nextEquipmentId++;
+    $db['equipment_presets'][] = $preset;
+    $existingSymbols[] = $preset['symbol'];
+}
+file_put_contents($dbFile, json_encode($db, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 $action = $_GET['action'] ?? 'bootstrap';
 
 if ($action === 'bootstrap') {

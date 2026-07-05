@@ -157,20 +157,43 @@ button.ghost {
 
 .topbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 20px 24px;
+    padding: 0 12px;
+    min-height: 56px;
     border-bottom: 1px solid rgba(191, 90, 54, 0.12);
+    background: #fcfcfc;
+}
+
+.topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.woca-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #9e3c1d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.woca-badge svg {
+    width: 34px;
+    height: 34px;
 }
 
 .project-title {
-    width: 420px;
+    width: 500px;
     max-width: 100%;
-    font-size: 24px;
-    font-weight: 700;
-    border: none;
-    background: transparent;
-    padding-left: 0;
+    font-size: 17px;
+    font-weight: 500;
+    border: 1px solid #d5d5d5;
+    border-radius: 0;
+    background: white;
+    padding: 9px 14px;
 }
 
 .canvas-layout {
@@ -280,6 +303,115 @@ button.ghost {
     align-items: center;
 }
 
+.drawing-toolbar {
+    background: #fcfcfc;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: max-content;
+    padding: 4px 8px;
+}
+
+.toolbar-row-main {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.toolbar-row-symbols {
+    gap: 2px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+}
+
+.icon-tool,
+.mini-icon-tool {
+    width: 46px;
+    height: 46px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    background: transparent;
+    color: #4a4a4a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+}
+
+.mini-icon-tool {
+    width: 44px;
+    height: 44px;
+}
+
+.icon-tool:hover,
+.mini-icon-tool:hover,
+.icon-tool.active,
+.mini-icon-tool.active {
+    background: #f2f2f2;
+}
+
+.icon-tool svg,
+.mini-icon-tool svg {
+    width: 38px;
+    height: 38px;
+}
+
+.symbol-icon-tool {
+    width: 38px;
+    height: 38px;
+    color: #111;
+}
+
+.symbol-icon-tool svg {
+    width: 31px;
+    height: 31px;
+}
+
+.compact-count {
+    flex-direction: column;
+    gap: 1px;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1;
+}
+
+.compact-count span {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #4d4d4d;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+}
+
+.compact-count small {
+    font-size: 10px;
+    color: #444;
+}
+
+.zoom-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 58px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #f1f1f1;
+    color: #444;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
 .report-sheet {
     font-family: "Segoe UI", sans-serif;
     padding: 32px;
@@ -291,7 +423,11 @@ button.ghost {
         grid-template-columns: 1fr;
     }
 
-    .inspector {
+    .sidebar {
         order: 3;
+    }
+
+    .inspector {
+        order: 4;
     }
 }
