@@ -356,7 +356,6 @@ function bindEvents() {
     refs.closeShortcutsModalBtn.addEventListener("click", closeShortcutsModal);
     refs.closeSymbolsModalBtn.addEventListener("click", closeSymbolsModal);
     refs.closeRectangleColorModalBtn.addEventListener("click", closeRectangleColorModal);
-    refs.toggleCadastrosBtn.addEventListener("click", toggleCadastrosPanel);
     document.querySelectorAll("[data-panel-toggle]").forEach(button => {
         button.addEventListener("click", () => togglePanelSection(button.dataset.panelToggle));
     });
