@@ -4,6 +4,20 @@ const SELECTION_HANDLE_SIZE = 10;
 const TOUCH_HANDLE_HIT_SIZE = 28;
 const TOUCH_ITEM_HIT_PADDING = 18;
 const symbolImageCache = new Map();
+const OUTLET_SYMBOL_BY_HEIGHT = {
+    baixa: "outlet-light-low",
+    media: "outlet-light-medium",
+    alta: "outlet-light-high",
+    piso: "light-outlet-floor",
+    teto: "light-outlet-ceiling",
+};
+const POWER_OUTLET_SYMBOL_BY_HEIGHT = {
+    baixa: "power-outlet-wall",
+    media: "power-outlet-wall",
+    alta: "power-outlet-wall",
+    piso: "power-outlet-floor",
+    teto: "power-outlet-ceiling",
+};
 
 const BRAZILIAN_ELECTRICAL_RULES = {
     source: "ABNT NBR 5410 / NR-10 / concessionaria local",
@@ -52,60 +66,76 @@ const SYMBOL_LIBRARY = [
 const PROJECT_TEMPLATES = {
     bathroom: {
         name: "banheiro",
-        width: 220,
-        height: 260,
-        roomLabel: { x: 72, y: 210 },
-        doors: [{ x: 80, y: 240, width: 80, height: 20 }],
-        windows: [{ x: 50, y: 250, width: 70, height: 20 }],
+        width: 300,
+        height: 300,
+        style: "technical-filled",
+        roomLabel: { x: 124, y: 190 },
+        doors: [{ x: 95, y: 280, width: 90, height: 20 }],
+        windows: [{ x: 90, y: 0, width: 120, height: 18 }, { x: 280, y: 120, width: 20, height: 80 }],
+        devices: [{ kind: "floor-cutout", x: 85, y: 270, width: 120, height: 40, layer: "overlay" }],
         electrical: [
-            { name: "Luminaria banheiro", type: "Iluminacao", symbol: "light", x: 110, y: 120, power: 100, height: "Teto", labelDx: 28, labelDy: 8 },
-            { name: "Interruptor banheiro", type: "Interruptor", symbol: "switch", x: 96, y: 228, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
-            { name: "Tomada lavatorio 600VA", type: "Tomada", symbol: "outlet", x: 30, y: 150, power: 600, height: "Media", labelDx: 30, labelDy: 26 },
-            { name: "Chuveiro eletrico", type: "TUE", symbol: "shower", x: 170, y: 60, power: 5500, voltage: 220, height: "Alta", labelDx: 24, labelDy: -2 }
+            { name: "Ponto de luz banheiro", type: "Iluminacao", symbol: "light", x: 150, y: 140, power: 100, height: "Teto", labelDx: 36, labelDy: 58, routeCenter: true },
+            { name: "Interruptor banheiro", type: "Interruptor", symbol: "switch", x: 110, y: 275, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Tomada lavatorio 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 25, y: 145, power: 600, height: "Media", labelDx: 32, labelDy: 26 },
+            { name: "Tomada apoio 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 275, y: 145, power: 600, height: "Media", rotation: 180, labelDx: 30, labelDy: 26 },
+            { name: "Chuveiro eletrico", type: "TUE", symbol: "shower", x: 225, y: 55, power: 5500, voltage: 220, height: "Alta", labelDx: 28, labelDy: 8 }
         ]
     },
     bedroom: {
         name: "quarto",
-        width: 360,
-        height: 260,
-        roomLabel: { x: 130, y: 150 },
-        doors: [{ x: 270, y: 240, width: 80, height: 20 }],
-        windows: [{ x: 115, y: 0, width: 120, height: 18 }],
+        width: 420,
+        height: 280,
+        style: "technical-filled",
+        roomLabel: { x: 190, y: 160 },
+        doors: [{ x: 330, y: 260, width: 70, height: 20 }],
+        windows: [{ x: 130, y: 0, width: 160, height: 18 }],
+        devices: [{ kind: "floor-cutout", x: 320, y: 250, width: 90, height: 40, layer: "overlay" }],
         electrical: [
-            { name: "Luminaria quarto", type: "Iluminacao", symbol: "light", x: 180, y: 125, power: 160, height: "Teto", labelDx: 24, labelDy: 18 },
-            { name: "Interruptor quarto", type: "Interruptor", symbol: "switch", x: 305, y: 220, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
-            { name: "Tomada quarto 100VA", type: "Tomada", symbol: "outlet", x: 45, y: 140, power: 100, height: "Baixa", labelDx: 30, labelDy: 22 },
-            { name: "Tomada quarto 100VA", type: "Tomada", symbol: "outlet", x: 305, y: 140, power: 100, height: "Baixa", labelDx: 30, labelDy: 22 },
-            { name: "Ar condicionado 10kBTU", type: "TUE", symbol: "ac", x: 300, y: 45, power: 1522, voltage: 220, height: "Alta", labelDx: 28, labelDy: 18 }
+            { name: "Ponto de luz quarto", type: "Iluminacao", symbol: "light", x: 210, y: 130, power: 160, height: "Teto", labelDx: 26, labelDy: 42, routeCenter: true },
+            { name: "Interruptor quarto", type: "Interruptor", symbol: "switch", x: 335, y: 252, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Tomada cabeceira esquerda", type: "Tomada", symbol: "outlet-light-low", x: 35, y: 130, power: 100, height: "Baixa", labelDx: 30, labelDy: 18 },
+            { name: "Tomada cabeceira direita", type: "Tomada", symbol: "outlet-light-low", x: 385, y: 130, power: 100, height: "Baixa", rotation: 180, labelDx: -108, labelDy: 18 },
+            { name: "Tomada TV quarto 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 270, y: 260, power: 600, height: "Media", rotation: -90, labelDx: 28, labelDy: 22 },
+            { name: "Ar condicionado 10kBTU", type: "TUE", symbol: "ac", x: 335, y: 45, power: 1522, voltage: 220, height: "Alta", labelDx: -92, labelDy: 18 }
         ]
     },
     living: {
         name: "sala",
-        width: 420,
-        height: 320,
-        roomLabel: { x: 188, y: 195 },
-        doors: [{ x: 250, y: 300, width: 90, height: 20 }],
-        windows: [{ x: 120, y: 0, width: 120, height: 20 }, { x: 400, y: 110, width: 20, height: 90 }],
+        width: 1040,
+        height: 420,
+        roomWidth: 420,
+        roomHeight: 420,
+        style: "reference-model",
+        roomLabel: { x: 188, y: 250 },
+        doors: [{ x: 70, y: 400, width: 90, height: 20 }],
+        windows: [{ x: 150, y: 0, width: 120, height: 20 }, { x: 400, y: 130, width: 20, height: 90 }],
+        embeds: [{ template: "qgbt", x: 600, y: 90 }],
         electrical: [
-            { name: "Luminaria sala", type: "Iluminacao", symbol: "light", x: 210, y: 150, power: 160, height: "Teto", labelDx: 24, labelDy: 18 },
-            { name: "Interruptor sala", type: "Interruptor", symbol: "switch", x: 280, y: 290, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
-            { name: "Tomada sala 100VA", type: "Tomada", symbol: "outlet", x: 42, y: 170, power: 100, height: "Baixa", labelDx: 30, labelDy: 22 },
-            { name: "Tomada sala 100VA", type: "Tomada", symbol: "outlet", x: 380, y: 170, power: 100, height: "Baixa", labelDx: 30, labelDy: 22 },
-            { name: "Tomada TV 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 210, y: 292, power: 600, height: "Media", labelDx: 30, labelDy: 16 },
-            { name: "Ar condicionado 10kBTU", type: "TUE", symbol: "ac", x: 290, y: 38, power: 1522, voltage: 220, height: "Alta", labelDx: 30, labelDy: 20 }
+            { name: "Luminaria LED", type: "Iluminacao", symbol: "light", x: 205, y: 205, power: 20, height: "Teto", labelDx: 28, labelDy: 56, routeCenter: true },
+            { name: "Interruptor sala", type: "Interruptor", symbol: "switch", x: 170, y: 395, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 22, y: 160, power: 100, height: "Baixa", labelDx: -42, labelDy: 12 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 22, y: 210, power: 100, height: "Baixa", labelDx: -42, labelDy: 12 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 398, y: 160, power: 100, height: "Baixa", rotation: 180, labelDx: 30, labelDy: 12 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 398, y: 210, power: 100, height: "Baixa", rotation: 180, labelDx: 30, labelDy: 12 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "power-outlet-wall", x: 285, y: 400, power: 600, height: "Media", rotation: -90, labelDx: 28, labelDy: 22 },
+            { name: "Ar condicionado 10kBTU", type: "TUE", symbol: "ac", x: 285, y: 38, power: 1522, voltage: 220, height: "Alta", labelDx: 24, labelDy: 22 }
         ]
     },
     terrace: {
         name: "terraco",
-        width: 360,
-        height: 220,
-        roomLabel: { x: 150, y: 125 },
-        doors: [{ x: 140, y: 200, width: 90, height: 20 }],
-        windows: [{ x: 95, y: 0, width: 180, height: 18 }],
+        width: 420,
+        height: 240,
+        style: "reference-model",
+        roomLabel: { x: 190, y: 140 },
+        doors: [{ x: 250, y: 220, width: 90, height: 20 }],
+        windows: [{ x: 115, y: 0, width: 200, height: 18 }],
         electrical: [
-            { name: "Luminaria terraco", type: "Iluminacao", symbol: "light-not-embedded", x: 178, y: 95, power: 100, height: "Teto", labelDx: 28, labelDy: 26 },
-            { name: "Interruptor terraco", type: "Interruptor", symbol: "switch", x: 140, y: 188, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
-            { name: "Tomada externa 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 300, y: 115, power: 600, height: "Media", labelDx: 28, labelDy: 22 }
+            { name: "Ponto de luz terraco", type: "Iluminacao", symbol: "light", x: 210, y: 118, power: 100, height: "Teto", labelDx: 28, labelDy: 40, routeCenter: true },
+            { name: "Interruptor terraco", type: "Interruptor", symbol: "switch", x: 170, y: 222, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Arandela externa", type: "Iluminacao", symbol: "light-wall", x: 35, y: 115, power: 100, height: "Media", labelDx: 30, labelDy: 18 },
+            { name: "Tomada externa 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 385, y: 115, power: 600, height: "Media", rotation: 180, labelDx: -122, labelDy: 18 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 35, y: 165, power: 100, height: "Baixa", labelDx: 30, labelDy: 18 },
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 385, y: 165, power: 100, height: "Baixa", rotation: 180, labelDx: -92, labelDy: 18 }
         ]
     },
     qgbt: {
@@ -237,6 +267,7 @@ const inspectorFields = {
     voltage: document.getElementById("propVoltage"),
     height: document.getElementById("propHeight"),
     circuit: document.getElementById("propCircuit"),
+    manualRoute: document.getElementById("propManualRoute"),
     legend: document.getElementById("propLegend"),
 };
 
@@ -278,6 +309,7 @@ function loadProject(project) {
     state.selectedId = null;
     state.selectedIds = [];
     state.zoom = state.currentProject.floorPlan.zoom || 1;
+    state.textSize = state.currentProject.floorPlan.textSize || "medium";
     refs.projectSelect.value = project.id;
     refs.userSelect.value = project.user_id;
     refs.utilitySelect.value = project.utility_id;
@@ -416,9 +448,37 @@ function bindEvents() {
         item.power = Number(inspectorFields.power.value) || 0;
         item.voltage = Number(inspectorFields.voltage.value);
         item.height = inspectorFields.height.value;
+        applyHeightBasedOutletSymbol(item);
         item.circuit = inspectorFields.circuit.value;
+        item.manualRouteTo = Number(inspectorFields.manualRoute.value) || null;
         item.showLegend = inspectorFields.legend.checked;
         computeDerivedData();
+        render();
+    });
+    inspectorFields.height.addEventListener("change", () => {
+        const item = getSelectedItem();
+        if (!item || item.kind !== "electrical") return;
+        pushHistory();
+        item.height = inspectorFields.height.value;
+        applyHeightBasedOutletSymbol(item);
+        computeDerivedData();
+        render();
+        fillInspector(item);
+    });
+    inspectorFields.manualRoute.addEventListener("change", () => {
+        const item = getSelectedItem();
+        if (!item || item.kind !== "electrical") return;
+        pushHistory();
+        item.manualRouteTo = Number(inspectorFields.manualRoute.value) || null;
+        computeDerivedData();
+        render();
+        fillInspector(item);
+    });
+    inspectorFields.legend.addEventListener("change", () => {
+        const item = getSelectedItem();
+        if (!item) return;
+        pushHistory();
+        item.showLegend = inspectorFields.legend.checked;
         render();
     });
     refs.flipHorizontalBtn.addEventListener("click", flipSelectedItemHorizontally);
@@ -793,7 +853,17 @@ function handleToolbarAction(action) {
         return;
     }
 
-    if (action === "legend" || action === "toggle-tue" || action === "toggle-tug") {
+    if (action === "legend") {
+        const item = getSelectedItem();
+        if (!item) return;
+        pushHistory();
+        item.showLegend = !item.showLegend;
+        fillInspector(item);
+        render();
+        return;
+    }
+
+    if (action === "toggle-tue" || action === "toggle-tug") {
         return;
     }
 }
@@ -844,10 +914,11 @@ function buildProjectTemplateItems(template, origin) {
             kind: "room",
             x: origin.x,
             y: origin.y,
-            width: template.width,
-            height: template.height,
+            width: template.roomWidth || template.width,
+            height: template.roomHeight || template.height,
             name: template.name,
             type: "room",
+            style: template.style || null,
             labelX: template.roomLabel?.x || 10,
             labelY: template.roomLabel?.y || 24,
             showLegend: false
@@ -859,14 +930,24 @@ function buildProjectTemplateItems(template, origin) {
     (template.lines || []).forEach(line => items.push(templateLine(line, origin, makeId)));
     (template.texts || []).forEach(text => items.push(templateText(text, origin, makeId)));
     (template.devices || []).forEach(device => items.push(templateDevice(device, origin, makeId)));
-    (template.doors || []).forEach(door => items.push(templateOpening("door", door, origin, makeId)));
-    (template.windows || []).forEach(windowItem => items.push(templateOpening("window", windowItem, origin, makeId)));
+    (template.doors || []).forEach(door => items.push(templateOpening("door", { ...door, style: template.style }, origin, makeId)));
+    (template.windows || []).forEach(windowItem => items.push(templateOpening("window", { ...windowItem, style: template.style }, origin, makeId)));
+    (template.embeds || []).forEach(embed => {
+        const embeddedTemplate = PROJECT_TEMPLATES[embed.template];
+        if (!embeddedTemplate) return;
+        items.push(...buildProjectTemplateItems(embeddedTemplate, {
+            x: origin.x + (embed.x || 0),
+            y: origin.y + (embed.y || 0)
+        }));
+    });
 
     const electrical = (template.electrical || []).map(point => templateElectricalPoint(point, origin, makeId));
-    const routeCenter = electrical.find(item => item.symbol === "light") || electrical[0] || null;
+    const routeCenter = electrical.find(item => item.routeCenter) || electrical.find(item => item.symbol === "light") || electrical[0] || null;
     electrical.forEach(item => {
         item.routeTo = routeCenter && item.id !== routeCenter.id ? routeCenter.id : null;
+        item.routeTos = [];
     });
+    connectSwitchPairs(electrical);
     items.push(...electrical);
 
     return items;
@@ -875,13 +956,13 @@ function buildProjectTemplateItems(template, origin) {
 function buildTemplateWalls(template, origin, makeId) {
     const x = origin.x;
     const y = origin.y;
-    const w = template.width;
-    const h = template.height;
+    const w = template.roomWidth || template.width;
+    const h = template.roomHeight || template.height;
     return [
-        { id: makeId(), kind: "wall", x, y, width: w, height: 20, name: "Parede", type: "wall", showLegend: false },
-        { id: makeId(), kind: "wall", x, y: y + h - 20, width: w, height: 20, name: "Parede", type: "wall", showLegend: false },
-        { id: makeId(), kind: "wall", x, y, width: 20, height: h, name: "Parede", type: "wall", showLegend: false },
-        { id: makeId(), kind: "wall", x: x + w - 20, y, width: 20, height: h, name: "Parede", type: "wall", showLegend: false }
+        { id: makeId(), kind: "wall", x, y, width: w, height: 20, name: "Parede", type: "wall", style: template.style || null, showLegend: false },
+        { id: makeId(), kind: "wall", x, y: y + h - 20, width: w, height: 20, name: "Parede", type: "wall", style: template.style || null, showLegend: false },
+        { id: makeId(), kind: "wall", x, y, width: 20, height: h, name: "Parede", type: "wall", style: template.style || null, showLegend: false },
+        { id: makeId(), kind: "wall", x: x + w - 20, y, width: 20, height: h, name: "Parede", type: "wall", style: template.style || null, showLegend: false }
     ];
 }
 
@@ -895,6 +976,7 @@ function templateOpening(kind, item, origin, makeId) {
         height: item.height,
         name: kind === "door" ? "Porta" : "Janela",
         type: kind,
+        style: item.style || null,
         showLegend: false
     };
 }
@@ -942,6 +1024,7 @@ function templateDevice(item, origin, makeId) {
         width: item.width || 24,
         height: item.height || 24,
         device: item.kind,
+        layer: item.layer || null,
         name: item.kind,
         type: "template-device",
         showLegend: false
@@ -949,7 +1032,7 @@ function templateDevice(item, origin, makeId) {
 }
 
 function templateElectricalPoint(point, origin, makeId) {
-    return {
+    const item = {
         id: makeId(),
         kind: "electrical",
         x: origin.x + point.x,
@@ -963,13 +1046,19 @@ function templateElectricalPoint(point, origin, makeId) {
         power: point.power || 0,
         voltage: point.voltage || 127,
         height: point.height || "Baixa",
+        rotation: point.rotation || 0,
         circuit: "",
         showLegend: point.symbol !== "switch",
         presetId: null,
         labelDx: point.labelDx,
         labelDy: point.labelDy,
+        routeCenter: Boolean(point.routeCenter),
+        routeTos: [],
+        manualRouteTo: null,
         routeTo: null
     };
+    applyHeightBasedOutletSymbol(item);
+    return item;
 }
 
 function createTechnicalSymbolPreset(symbol) {
@@ -1107,6 +1196,85 @@ function inferSymbol(item) {
     if (text.includes("ar-condicionado") || text.includes("climatizacao") || text.includes("split")) return "ac";
     if (text.includes("micro") || text.includes("forno") || text.includes("geladeira") || text.includes("maquina")) return "specific-outlet";
     return "outlet";
+}
+
+function applyHeightBasedOutletSymbol(item) {
+    if (!shouldUseHeightBasedOutletSymbol(item)) return;
+    const heightKey = removeAccents(item.height).toLowerCase();
+    const map = String(item.symbol || "").startsWith("power-outlet")
+        ? POWER_OUTLET_SYMBOL_BY_HEIGHT
+        : OUTLET_SYMBOL_BY_HEIGHT;
+    item.symbol = map[heightKey] || item.symbol || "outlet";
+}
+
+function shouldUseHeightBasedOutletSymbol(item) {
+    if (!item || item.kind !== "electrical") return false;
+    const symbol = item.symbol || inferSymbol(item);
+    if (["switch", "light", "distribution-board", "shower", "ac", "specific-outlet"].includes(symbol)) return false;
+    if (symbol.includes("outlet")) return true;
+    const text = removeAccents(`${item.name || ""} ${item.type || ""}`).toLowerCase();
+    return text.includes("tomada") || text.includes("tug");
+}
+
+function isSwitchPoint(item) {
+    return (item?.symbol || inferSymbol(item)) === "switch";
+}
+
+function connectSwitchPairs(points) {
+    points.forEach(item => {
+        item.routeTos = (item.routeTos || []).filter(routeId => {
+            const target = points.find(candidate => candidate.id === routeId);
+            return target && !isSwitchPoint(target);
+        });
+    });
+
+    const switches = points.filter(isSwitchPoint);
+    switches.forEach(item => {
+        const room = findRoomContainingPoint(item);
+        const candidates = switches.filter(candidate => {
+            if (candidate.id === item.id) return false;
+            if (!room) return true;
+            return pointInsideRect(candidate, room);
+        });
+        const pairedSwitch = closestItemToPoint(candidates, item);
+        if (pairedSwitch && item.id < pairedSwitch.id && !item.routeTos.includes(pairedSwitch.id)) {
+            item.routeTos.push(pairedSwitch.id);
+        }
+    });
+}
+
+function findRouteCenterForPoint(point, ignoredId = null) {
+    const electrical = state.currentProject.floorPlan.items.filter(item => item.kind === "electrical" && item.id !== ignoredId);
+    const room = findRoomContainingPoint(point);
+    const roomLights = room
+        ? electrical.filter(item => isRouteCenterCandidate(item) && pointInsideRect(item, room))
+        : [];
+    const candidates = roomLights.length ? roomLights : electrical.filter(isRouteCenterCandidate);
+    return closestItemToPoint(candidates, point);
+}
+
+function isRouteCenterCandidate(item) {
+    return item.routeCenter || (item.symbol || inferSymbol(item)) === "light";
+}
+
+function findRoomContainingPoint(point) {
+    const rooms = state.currentProject.floorPlan.items.filter(item => item.kind === "room" && pointInsideRect(point, item));
+    return rooms.sort((a, b) => (a.width * a.height) - (b.width * b.height))[0] || null;
+}
+
+function pointInsideRect(point, rect) {
+    return point.x >= rect.x
+        && point.x <= rect.x + rect.width
+        && point.y >= rect.y
+        && point.y <= rect.y + rect.height;
+}
+
+function closestItemToPoint(items, point) {
+    return items.reduce((closest, item) => {
+        const distance = Math.hypot(item.x - point.x, item.y - point.y);
+        if (!closest || distance < closest.distance) return { item, distance };
+        return closest;
+    }, null)?.item || null;
 }
 
 function circuitGroupForPoint(point) {
@@ -1407,9 +1575,18 @@ function createElectricalItem(point) {
         circuit: "",
         showLegend: true,
         presetId: normalizedPreset?.id || null,
+        routeCenter: (normalizedPreset?.symbol || "") === "light",
+        routeTos: [],
+        manualRouteTo: null,
         routeTo: null
     };
+    applyHeightBasedOutletSymbol(item);
+    const routeCenter = findRouteCenterForPoint(item, item.id);
+    if (routeCenter && item.id !== routeCenter.id && !item.routeCenter) {
+        item.routeTo = routeCenter.id;
+    }
     state.currentProject.floorPlan.items.push(item);
+    connectSwitchPairs(state.currentProject.floorPlan.items.filter(current => current.kind === "electrical"));
     state.selectedId = item.id;
     state.selectedIds = [item.id];
     fillInspector(item);
@@ -1663,8 +1840,35 @@ function fillInspector(item) {
     inspectorFields.voltage.value = String(item?.voltage || 127);
     inspectorFields.height.value = item?.height || "Baixa";
     inspectorFields.circuit.value = item?.circuit || "";
+    fillManualRouteOptions(item);
     inspectorFields.legend.checked = Boolean(item?.showLegend);
     refs.flipHorizontalBtn.disabled = !getSelectedItems().length;
+}
+
+function fillManualRouteOptions(item) {
+    if (!inspectorFields.manualRoute) return;
+    const electrical = state.currentProject?.floorPlan?.items
+        ?.filter(candidate => candidate.kind === "electrical" && candidate.id !== item?.id) || [];
+    inspectorFields.manualRoute.innerHTML = [
+        `<option value="">Nenhum</option>`,
+        ...electrical.map(candidate => `<option value="${candidate.id}">${escapeHtml(routeTargetLabel(candidate))}</option>`)
+    ].join("");
+    inspectorFields.manualRoute.value = item?.manualRouteTo ? String(item.manualRouteTo) : "";
+    inspectorFields.manualRoute.disabled = !item || item.kind !== "electrical";
+}
+
+function routeTargetLabel(item) {
+    const symbol = symbolAbbreviation(item);
+    const circuit = item.circuit ? ` - circ. ${circuitNumberFromLabel(item.circuit)}` : "";
+    return `${item.name || symbol}${circuit}`;
+}
+
+function escapeHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
 }
 
 function flipSelectedItemHorizontally() {
@@ -1745,12 +1949,14 @@ function render() {
     const openings = items.filter(item => item.kind === "door" || item.kind === "window");
     const walls = items.filter(item => item.kind === "wall");
     const templateLines = items.filter(item => item.kind === "template-line");
-    const templateDevices = items.filter(item => item.kind === "template-device");
+    const templateDevices = items.filter(item => item.kind === "template-device" && item.layer !== "overlay");
+    const templateOverlayDevices = items.filter(item => item.kind === "template-device" && item.layer === "overlay");
     const templateTexts = items.filter(item => item.kind === "template-text");
     const electrical = items.filter(item => item.kind === "electrical");
 
     rooms.forEach(drawRoom);
     walls.forEach(drawWall);
+    templateOverlayDevices.forEach(drawTemplateDevice);
     openings.forEach(drawOpening);
     templateLines.forEach(drawTemplateLine);
     templateDevices.forEach(drawTemplateDevice);
@@ -1768,14 +1974,26 @@ function drawRoom(item) {
     const rotation = Number(item.rotation || 0);
     const cx = item.x + item.width / 2;
     const cy = item.y + item.height / 2;
-    ctx.fillStyle = "rgba(245, 216, 203, 0.35)";
-    ctx.strokeStyle = "#a99c8c";
-    ctx.lineWidth = 1;
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(rotation * Math.PI / 180);
-    ctx.fillRect(-item.width / 2, -item.height / 2, item.width, item.height);
-    ctx.strokeRect(-item.width / 2, -item.height / 2, item.width, item.height);
+
+    if (item.style === "reference-model") {
+        ctx.strokeStyle = "#686868";
+        ctx.lineWidth = 1.8;
+        ctx.strokeRect(-item.width / 2, -item.height / 2, item.width, item.height);
+    } else if (item.style === "technical-filled") {
+        ctx.strokeStyle = "#686868";
+        ctx.lineWidth = 1.8;
+        ctx.strokeRect(-item.width / 2, -item.height / 2, item.width, item.height);
+    } else {
+        ctx.fillStyle = "rgba(245, 216, 203, 0.35)";
+        ctx.strokeStyle = "#a99c8c";
+        ctx.lineWidth = 1;
+        ctx.fillRect(-item.width / 2, -item.height / 2, item.width, item.height);
+        ctx.strokeRect(-item.width / 2, -item.height / 2, item.width, item.height);
+    }
+
     ctx.fillStyle = "#5b544b";
     ctx.font = canvasFont(16, "Segoe UI");
     ctx.fillText(item.name, -item.width / 2 + (item.labelX || 10), -item.height / 2 + (item.labelY || 24));
@@ -1875,6 +2093,10 @@ function rectIntersects(a, b) {
         && a.y + a.height > b.y;
 }
 
+function isTechnicalRoomStyle(style) {
+    return style === "reference-model" || style === "technical-filled";
+}
+
 function drawWall(item) {
     const horizontal = item.width >= item.height;
     const rotation = Number(item.rotation || 0) * Math.PI / 180;
@@ -1885,6 +2107,18 @@ function drawWall(item) {
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(rotation);
+
+    if (isTechnicalRoomStyle(item.style)) {
+        ctx.strokeStyle = "#686868";
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(horizontal ? -length / 2 : 0, horizontal ? 0 : -length / 2);
+        ctx.lineTo(horizontal ? length / 2 : 0, horizontal ? 0 : length / 2);
+        ctx.stroke();
+        ctx.restore();
+        return;
+    }
+
     ctx.fillStyle = "#3b3b3b";
     if (horizontal) {
         ctx.fillRect(-length / 2, -thickness / 2, length, thickness);
@@ -2013,12 +2247,20 @@ function drawTemplateDevice(item) {
         ctx.moveTo(item.x - 4, item.y + 10);
         ctx.lineTo(item.x + 4, item.y + 10);
         ctx.stroke();
+    } else if (item.device === "floor-cutout") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(item.x, item.y, item.width, item.height);
     }
 
     ctx.restore();
 }
 
 function drawDoorSymbol(item) {
+    if (isTechnicalRoomStyle(item.style)) {
+        drawReferenceDoorSymbol(item);
+        return;
+    }
+
     const horizontal = item.width >= item.height;
     const w = item.width;
     const h = item.height;
@@ -2030,8 +2272,9 @@ function drawDoorSymbol(item) {
     ctx.translate(cx, cy);
     ctx.rotate(rotation);
     ctx.translate(-cx, -cy);
-    ctx.strokeStyle = "#bf5a36";
-    ctx.fillStyle = "#bf5a36";
+    const doorColor = item.style === "reference-model" ? "#686868" : "#bf5a36";
+    ctx.strokeStyle = doorColor;
+    ctx.fillStyle = doorColor;
     ctx.lineWidth = 2;
 
     if (horizontal) {
@@ -2062,7 +2305,7 @@ function drawDoorSymbol(item) {
         ctx.lineTo(x1, y);
         ctx.stroke();
 
-        ctx.strokeStyle = "#bf5a36";
+        ctx.strokeStyle = doorColor;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(x0, y, swingRadius, 0, Math.PI / 2, false);
@@ -2100,10 +2343,58 @@ function drawDoorSymbol(item) {
         ctx.lineTo(x, y1);
         ctx.stroke();
 
-        ctx.strokeStyle = "#bf5a36";
+        ctx.strokeStyle = doorColor;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(x, y0, swingRadius, Math.PI / 2, Math.PI, false);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+function drawReferenceDoorSymbol(item) {
+    const horizontal = item.width >= item.height;
+    const rotation = Number(item.rotation || 0) * Math.PI / 180;
+    const cx = item.x + item.width / 2;
+    const cy = item.y + item.height / 2;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rotation);
+    ctx.translate(-cx, -cy);
+    ctx.strokeStyle = "#686868";
+    ctx.lineWidth = 2;
+
+    if (horizontal) {
+        const y = item.y + item.height / 2;
+        const x0 = item.x;
+        const x1 = item.x + item.width;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x0, y - 10, item.width, 20);
+        ctx.beginPath();
+        ctx.moveTo(x0, y - 18);
+        ctx.lineTo(x0, y + 18);
+        ctx.moveTo(x0, y);
+        ctx.lineTo(x1, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x0, y, item.width, 0, Math.PI / 2, false);
+        ctx.stroke();
+    } else {
+        const x = item.x + item.width / 2;
+        const y0 = item.y;
+        const y1 = item.y + item.height;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x - 10, y0, 20, item.height);
+        ctx.beginPath();
+        ctx.moveTo(x - 18, y0);
+        ctx.lineTo(x + 18, y0);
+        ctx.moveTo(x, y0);
+        ctx.lineTo(x, y1);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, y0, item.height, Math.PI / 2, Math.PI, false);
         ctx.stroke();
     }
 
@@ -2149,13 +2440,16 @@ function drawRoutes(electrical) {
     ctx.strokeStyle = "#1e2a32";
     ctx.lineWidth = 1.5;
     electrical.forEach(item => {
-        if (!item.routeTo) return;
-        const target = electrical.find(candidate => candidate.id === item.routeTo);
-        if (!target) return;
-        ctx.beginPath();
-        ctx.moveTo(item.x, item.y);
-        ctx.lineTo(target.x, target.y);
-        ctx.stroke();
+        const primaryRouteIds = item.manualRouteTo ? [item.manualRouteTo] : [item.routeTo];
+        const routeIds = [...primaryRouteIds, ...(item.routeTos || [])].filter(Boolean);
+        routeIds.forEach(routeId => {
+            const target = electrical.find(candidate => candidate.id === routeId);
+            if (!target) return;
+            ctx.beginPath();
+            ctx.moveTo(item.x, item.y);
+            ctx.lineTo(target.x, target.y);
+            ctx.stroke();
+        });
     });
 }
 
@@ -2506,6 +2800,11 @@ function lineDashForSymbol(symbol) {
 }
 
 function drawOutletOrEquipmentSymbol(item, symbol) {
+    if (symbol === "ac") {
+        drawAirConditionerSymbol();
+        return;
+    }
+
     const highPower = isSpecificUse(item) || symbol === "shower" || symbol === "ac";
 
     if (highPower) {
@@ -2538,18 +2837,35 @@ function drawOutletOrEquipmentSymbol(item, symbol) {
         ctx.stroke();
     }
 
-    if (symbol === "ac") {
-        ctx.beginPath();
-        ctx.rect(-13, -17, 26, 8);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(-7, -5);
-        ctx.lineTo(7, -5);
-        ctx.stroke();
-    }
+}
+
+function drawAirConditionerSymbol() {
+    ctx.save();
+    ctx.strokeStyle = "#000000";
+    ctx.fillStyle = "#000000";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 16);
+    ctx.lineTo(0, -22);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-9, 4);
+    ctx.lineTo(3, -6);
+    ctx.lineTo(-2, -6);
+    ctx.lineTo(8, -22);
+    ctx.lineTo(4, -2);
+    ctx.lineTo(10, -2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
 }
 
 function drawElectricalCallout(item, symbol) {
+    if (!item.showLegend) return;
+
     ctx.save();
     ctx.fillStyle = "#000000";
     ctx.font = canvasFont(16);
@@ -2601,10 +2917,15 @@ function drawElectricalLegend(electrical) {
 function autoRouteElectricalPoints() {
     const points = state.currentProject.floorPlan.items.filter(item => item.kind === "electrical");
     if (!points.length) return;
-    const center = points[0];
-    points.forEach((item, index) => {
-        item.routeTo = index === 0 ? null : center.id;
+    points.forEach(item => {
+        if (isRouteCenterCandidate(item)) {
+            item.routeTo = null;
+            return;
+        }
+        const center = findRouteCenterForPoint(item, item.id);
+        item.routeTo = center ? center.id : null;
     });
+    connectSwitchPairs(points);
 }
 
 function computeDerivedData() {
@@ -2849,6 +3170,7 @@ async function saveProject() {
     state.currentProject.user_id = Number(refs.userSelect.value);
     state.currentProject.utility_id = Number(refs.utilitySelect.value);
     state.currentProject.floorPlan.zoom = state.zoom;
+    state.currentProject.floorPlan.textSize = state.textSize;
     const response = await fetch("api.php?action=saveProject", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

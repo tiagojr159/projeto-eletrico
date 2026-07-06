@@ -106,7 +106,7 @@ declare(strict_types=1);
                         <div class="app-menu-submenu">
                             <button type="button" class="app-menu-subitem" data-menu-action="text-size-minimum">Mínimo</button>
                             <button type="button" class="app-menu-subitem" data-menu-action="text-size-small">Pequeno</button>
-                            <button type="button" class="app-menu-subitem" data-menu-action="text-size-medium">MÃ©dio</button>
+                            <button type="button" class="app-menu-subitem" data-menu-action="text-size-medium">Medio</button>
                             <button type="button" class="app-menu-subitem" data-menu-action="text-size-large">Grande</button>
                         </div>
                     </div>
@@ -265,6 +265,11 @@ declare(strict_types=1);
                         <label>Circuito
                             <input id="propCircuit" type="text">
                         </label>
+                        <label>Conectar também a
+                            <select id="propManualRoute">
+                                <option value="">Nenhum</option>
+                            </select>
+                        </label>
                         <label class="checkbox">
                             <input id="propLegend" type="checkbox">
                             Exibir na legenda
@@ -345,6 +350,7 @@ declare(strict_types=1);
             <div>
                 <h2 id="symbolsModalTitle">Simbolos da NBR</h2>
                 <p class="muted">Todos os simbolos cadastrados no sistema.</p>
+                <p class="muted"><a href="NBR_5444-1989_Simbolos_Graficos_para_Instalacoes_Prediais.pdf" target="_blank" rel="noopener">Abrir manual NBR 5444-1989 em PDF</a></p>
             </div>
             <button id="closeSymbolsModalBtn" class="modal-close" type="button" aria-label="Fechar">x</button>
         </div>
