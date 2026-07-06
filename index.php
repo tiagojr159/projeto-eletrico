@@ -20,8 +20,12 @@ declare(strict_types=1);
             </div>
         </div>
 
-        <section class="panel">
-            <h2>Cadastros</h2>
+        <section class="panel cadastros-panel" id="cadastrosPanel">
+            <div class="panel-header-inline">
+                <h2>Cadastros</h2>
+                <button id="toggleCadastrosBtn" class="ghost panel-toggle-btn" type="button" aria-expanded="true" aria-controls="cadastrosBody">Minimizar</button>
+            </div>
+            <div id="cadastrosBody" class="panel-body">
             <label>Usuário
                 <select id="userSelect"></select>
             </label>
@@ -31,14 +35,32 @@ declare(strict_types=1);
             <label>Concessionária
                 <select id="utilitySelect"></select>
             </label>
+            <label>Mao de obra (R$)
+                <input id="laborCostInput" type="number" min="0" step="0.01" value="0">
+            </label>
+            <div class="canvas-size-bar canvas-size-bar-sidebar">
+                <strong>Area da planta</strong>
+                <label>Largura
+                    <input id="planWidthInput" type="number" min="800" max="4000" step="20" value="1400">
+                </label>
+                <label>Altura
+                    <input id="planHeightInput" type="number" min="600" max="4000" step="20" value="900">
+                </label>
+                <button id="applyCanvasSizeBtn" type="button" class="secondary">Aplicar area</button>
+            </div>
             <div class="button-row">
                 <button id="newProjectBtn" class="secondary">Novo projeto</button>
                 <button id="saveProjectBtn">Salvar</button>
             </div>
+            </div>
         </section>
 
-        <section class="panel">
-            <h2>Ferramentas de desenho</h2>
+        <section class="panel" id="drawingToolsPanel">
+            <div class="panel-header-inline">
+                <h2>Ferramentas de desenho</h2>
+                <button class="ghost panel-toggle-btn" type="button" aria-expanded="true" aria-controls="drawingToolsBody" data-panel-toggle="drawingToolsPanel">Minimizar</button>
+            </div>
+            <div id="drawingToolsBody" class="panel-body">
             <div class="tool-grid" id="toolGrid">
                 <button data-tool="select" class="tool active">Selecionar</button>
                 <button data-tool="wall" class="tool">Parede</button>
@@ -51,6 +73,7 @@ declare(strict_types=1);
             <div class="button-row">
                 <button data-control="undo" class="secondary">Desfazer</button>
                 <button data-control="redo" class="secondary">Refazer</button>
+            </div>
             </div>
         </section>
 
@@ -149,14 +172,20 @@ declare(strict_types=1);
                 <button class="icon-tool" data-action="preset-light" title="Luminária">
                     <svg viewBox="0 0 40 40"><path d="M20 10a7 7 0 0 1 7 7c0 3-1.5 4.2-3 6v3h-8v-3c-1.5-1.8-3-3-3-6a7 7 0 0 1 7-7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 29h6M18 32h4" stroke="#20b8b0" stroke-width="2"/><circle cx="11" cy="10" r="5.5" fill="#20b8b0"/><text x="11" y="12.5" text-anchor="middle" font-size="8" fill="#fff" font-family="Arial">A</text></svg>
                 </button>
+                <button class="icon-tool" data-action="preset-light" title="Ponto de luz com potencia e circuito">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="white" stroke="currentColor" stroke-width="2"/><path d="M9 20h22" stroke="currentColor" stroke-width="2"/><text x="20" y="16" text-anchor="middle" font-size="7" fill="currentColor" font-family="Arial">100</text><text x="20" y="26" text-anchor="middle" font-size="7" fill="currentColor" font-family="Arial">1a</text></svg>
+                </button>
                 <button class="icon-tool" data-action="preset-switch" title="Interruptor">
                     <svg viewBox="0 0 40 40"><path d="M12 10h10v20H12z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 13v6" stroke="#20b8b0" stroke-width="2"/><path d="M26 12h6v18h-6" fill="none" stroke="#e24d46" stroke-width="2"/><circle cx="29" cy="17" r="1.2" fill="#20b8b0"/></svg>
                 </button>
                 <button class="icon-tool" data-action="preset-distribution" title="Quadro">
                     <svg viewBox="0 0 40 40"><path d="M10 8h18v24H10z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 16h18M16 8v24M22 8v24" stroke="#20b8b0" stroke-width="1.8"/><path d="M14 28h10" stroke="#e24d46" stroke-width="2"/></svg>
                 </button>
-                <button class="icon-tool" data-action="legend" title="Legenda">
-                    <svg viewBox="0 0 40 40"><path d="M8 12h24M8 20h24M8 28h10M22 28h10" stroke="currentColor" stroke-width="2"/><path d="M12 10v22M28 10v22" stroke="#20b8b0" stroke-width="1.8"/><path d="M18 10v22" stroke="#e24d46" stroke-width="1.8"/></svg>
+                <button class="icon-tool" data-tool="free-text" title="Legenda livre">
+                    <svg viewBox="0 0 40 40"><path d="M8 12h24M8 20h16M8 28h24" stroke="currentColor" stroke-width="2"/><path d="M28 9v22" stroke="#20b8b0" stroke-width="2"/><path d="M22 30h12" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="icon-tool" data-action="rectangle-tool" title="Retangulo colorido">
+                    <svg viewBox="0 0 40 40"><rect x="8" y="11" width="24" height="18" rx="2" fill="#f6c86f" stroke="currentColor" stroke-width="2"/><path d="M8 31h24" stroke="#e24d46" stroke-width="2"/></svg>
                 </button>
                 <button class="icon-tool compact-count" data-action="toggle-tue" title="TUE"><span>1</span><small>TUE</small></button>
                 <button class="icon-tool compact-count" data-action="toggle-tug" title="TUG"><span>2</span><small>TUG</small></button>
@@ -203,6 +232,15 @@ declare(strict_types=1);
                 </button>
                 <button class="mini-icon-tool" data-action="preset-washer" title="Máquina de lavar">
                     <svg viewBox="0 0 40 40"><rect x="11" y="8" width="18" height="24" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="21" r="6" fill="none" stroke="#20b8b0" stroke-width="2"/><path d="M14 12h2M18 12h2" stroke="#e24d46" stroke-width="2"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="preset-led" title="Luminaria de LED">
+                    <svg viewBox="0 0 40 40"><path d="M20 10a7 7 0 0 1 7 7c0 3-1.5 4.2-3 6v3h-8v-3c-1.5-1.8-3-3-3-6a7 7 0 0 1 7-7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 29h6M18 32h4" stroke="#20b8b0" stroke-width="2"/><path d="M10 13l2-2M28 13l2-2M20 7V4" stroke="#e24d46" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="insert-dr" title="Inserir DR">
+                    <svg viewBox="0 0 40 40"><rect x="9" y="9" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"/><text x="20" y="23" text-anchor="middle" font-size="10" fill="currentColor" font-family="Arial">DR</text></svg>
+                </button>
+                <button class="mini-icon-tool" data-action="insert-dps" title="Inserir DPS">
+                    <svg viewBox="0 0 40 40"><rect x="15" y="8" width="10" height="24" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 27l6-14" stroke="#e24d46" stroke-width="2" stroke-linecap="round"/><path d="M13 12h4M23 28h4" stroke="#20b8b0" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
                 <button class="mini-icon-tool" id="autoRouteBtn" title="Gerar ligações">
                     <svg viewBox="0 0 40 40"><path d="M10 20h8l5-6 7 8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="20" r="3" fill="#e24d46"/><circle cx="23" cy="14" r="3" fill="#20b8b0"/><circle cx="30" cy="22" r="3" fill="#20b8b0"/></svg>
@@ -278,6 +316,7 @@ declare(strict_types=1);
                             <input id="propLegendLabel" type="checkbox">
                             Exibir legenda perto do objeto
                         </label>
+                        <button id="editRectangleColorBtn" type="button" class="secondary" hidden>Alterar cor do retangulo</button>
                         <button id="flipHorizontalBtn" type="button" class="secondary">Girar 30°</button>
                         <button type="submit">Atualizar item</button>
                     </form>
@@ -359,6 +398,20 @@ declare(strict_types=1);
             <button id="closeSymbolsModalBtn" class="modal-close" type="button" aria-label="Fechar">x</button>
         </div>
         <div id="symbolsGallery" class="symbols-gallery"></div>
+    </section>
+</div>
+
+<div id="rectangleColorModal" class="modal-shell" hidden>
+    <div class="modal-backdrop" data-close-modal="rectangle-color"></div>
+    <section class="modal-card rectangle-color-modal-card" role="dialog" aria-modal="true" aria-labelledby="rectangleColorModalTitle">
+        <div class="modal-header">
+            <div>
+                <h2 id="rectangleColorModalTitle">Cor do retangulo</h2>
+                <p class="muted">Escolha uma cor para criar ou atualizar o retangulo.</p>
+            </div>
+            <button id="closeRectangleColorModalBtn" class="modal-close" type="button" aria-label="Fechar">x</button>
+        </div>
+        <div id="rectangleColorPalette" class="color-palette"></div>
     </section>
 </div>
 

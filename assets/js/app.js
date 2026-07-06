@@ -4,6 +4,7 @@ const SELECTION_HANDLE_SIZE = 10;
 const TOUCH_HANDLE_HIT_SIZE = 28;
 const TOUCH_ITEM_HIT_PADDING = 18;
 const symbolImageCache = new Map();
+const RECTANGLE_COLOR_OPTIONS = ["#ffffff", "#f7f3ee", "#e6e6e6", "#f6c86f", "#f3a683", "#f28482", "#8bd3dd", "#7ddc92", "#b8c0ff", "#c3bef0", "#c7b299", "#9bb0c1"];
 const OUTLET_SYMBOL_BY_HEIGHT = {
     baixa: "outlet-light-low",
     media: "outlet-light-medium",
@@ -196,6 +197,10 @@ const state = {
     history: [],
     future: [],
     tempPreset: null,
+    tempTemplateDevice: null,
+    rectangleColor: "#f6c86f",
+    rectangleColorTargetId: null,
+    clipboardItems: [],
     draggingCanvas: false,
     panStart: null,
     selectionAction: null,
@@ -214,15 +219,20 @@ const state = {
     distributionHidden: false,
     singleLineHidden: false,
     materialsHidden: false,
+    cadastrosCollapsed: false,
 };
 
 
 const canvas = document.getElementById("planCanvas");
 const ctx = canvas.getContext("2d");
 const viewport = document.getElementById("canvasViewport");
+const DEFAULT_CANVAS_WIDTH = 1400;
+const DEFAULT_CANVAS_HEIGHT = 900;
 
 const refs = {
     appRoot: document.getElementById("app"),
+    cadastrosPanel: document.getElementById("cadastrosPanel"),
+    toggleCadastrosBtn: document.getElementById("toggleCadastrosBtn"),
     sidebar: document.querySelector(".sidebar"),
     inspector: document.querySelector(".inspector"),
     drawingToolbar: document.querySelector(".drawing-toolbar"),
@@ -232,6 +242,7 @@ const refs = {
     userSelect: document.getElementById("userSelect"),
     projectSelect: document.getElementById("projectSelect"),
     utilitySelect: document.getElementById("utilitySelect"),
+    laborCostInput: document.getElementById("laborCostInput"),
     projectNameInput: document.getElementById("projectNameInput"),
     equipmentPreset: document.getElementById("equipmentPreset"),
     summaryCards: document.getElementById("summaryCards"),
@@ -240,6 +251,9 @@ const refs = {
     materialsBox: document.getElementById("materialsBox"),
     zoomLabel: document.getElementById("zoomLabel"),
     toolHint: document.getElementById("toolHint"),
+    planWidthInput: document.getElementById("planWidthInput"),
+    planHeightInput: document.getElementById("planHeightInput"),
+    applyCanvasSizeBtn: document.getElementById("applyCanvasSizeBtn"),
     menuToggleBtn: document.getElementById("menuToggleBtn"),
     appMenu: document.getElementById("appMenu"),
     menuBackdrop: document.getElementById("menuBackdrop"),
@@ -255,6 +269,10 @@ const refs = {
     symbolsModal: document.getElementById("symbolsModal"),
     symbolsGallery: document.getElementById("symbolsGallery"),
     closeSymbolsModalBtn: document.getElementById("closeSymbolsModalBtn"),
+    rectangleColorModal: document.getElementById("rectangleColorModal"),
+    rectangleColorPalette: document.getElementById("rectangleColorPalette"),
+    closeRectangleColorModalBtn: document.getElementById("closeRectangleColorModalBtn"),
+    editRectangleColorBtn: document.getElementById("editRectangleColorBtn"),
     flipHorizontalBtn: document.getElementById("flipHorizontalBtn"),
     distributionBoardPanel: document.getElementById("distributionBoard")?.closest(".panel"),
     singleLinePanel: document.getElementById("singleLineDiagram")?.closest(".panel"),
@@ -276,8 +294,10 @@ const inspectorFields = {
 async function bootstrap() {
     const response = await fetch("api.php?action=bootstrap");
     state.db = await response.json();
+    enhanceCollapsiblePanels();
     populateSelects();
     renderSymbolToolbar();
+    renderRectangleColorPalette();
     loadProject(state.db.projects[0]);
     updateWorkspaceLayout();
     bindEvents();
@@ -308,14 +328,20 @@ function renderSymbolToolbar() {
 
 function loadProject(project) {
     state.currentProject = structuredClone(project);
+    state.currentProject.laborCost = Number(state.currentProject.laborCost || 0);
+    normalizeFloorPlanItems(state.currentProject.floorPlan.items || []);
     state.selectedId = null;
     state.selectedIds = [];
     state.zoom = state.currentProject.floorPlan.zoom || 1;
     state.textSize = state.currentProject.floorPlan.textSize || "medium";
+    ensureFloorPlanCanvasSize(state.currentProject.floorPlan);
+    syncCanvasSizeInputs();
     refs.projectSelect.value = project.id;
     refs.userSelect.value = project.user_id;
     refs.utilitySelect.value = project.utility_id;
+    refs.laborCostInput.value = state.currentProject.laborCost;
     refs.projectNameInput.value = project.name;
+    applyCanvasSizeToElement();
     updateZoom();
     computeDerivedData();
     fillInspector(null);
@@ -329,6 +355,10 @@ function bindEvents() {
     refs.cancelPriceModalBtn.addEventListener("click", closePriceModal);
     refs.closeShortcutsModalBtn.addEventListener("click", closeShortcutsModal);
     refs.closeSymbolsModalBtn.addEventListener("click", closeSymbolsModal);
+    refs.closeRectangleColorModalBtn.addEventListener("click", closeRectangleColorModal);
+    document.querySelectorAll("[data-panel-toggle]").forEach(button => {
+        button.addEventListener("click", () => togglePanelSection(button.dataset.panelToggle));
+    });
     refs.symbolsGallery.addEventListener("click", event => {
         const button = event.target.closest("[data-action]");
         if (!button) return;
@@ -356,6 +386,15 @@ function bindEvents() {
         if (event.target.dataset.closeModal === "symbols") {
             closeSymbolsModal();
         }
+    });
+    refs.rectangleColorModal.addEventListener("click", event => {
+        if (event.target.dataset.closeModal === "rectangle-color") {
+            closeRectangleColorModal();
+            return;
+        }
+        const swatch = event.target.closest("[data-color]");
+        if (!swatch) return;
+        applyRectangleColorSelection(swatch.dataset.color || "");
     });
     refs.priceEditorForm.addEventListener("submit", saveCatalogPrices);
 
@@ -394,6 +433,9 @@ function bindEvents() {
     refs.projectNameInput.addEventListener("input", () => {
         state.currentProject.name = refs.projectNameInput.value;
     });
+    refs.laborCostInput.addEventListener("input", () => {
+        state.currentProject.laborCost = Number(refs.laborCostInput.value || 0);
+    });
 
     document.getElementById("newProjectBtn").addEventListener("click", createNewProject);
     document.getElementById("saveProjectBtn").addEventListener("click", saveProject);
@@ -402,6 +444,7 @@ function bindEvents() {
         state.tempPreset = preset || null;
         activateTool("electrical");
     });
+    refs.applyCanvasSizeBtn.addEventListener("click", applyCanvasSizeFromInputs);
 
     document.querySelectorAll('#undoBtn, [data-control="undo"]').forEach(button => {
         button.addEventListener("click", undo);
@@ -445,17 +488,7 @@ function bindEvents() {
         event.preventDefault();
         const item = getSelectedItem();
         if (!item) return;
-        item.name = inspectorFields.name.value;
-        item.type = inspectorFields.type.value;
-        item.power = Number(inspectorFields.power.value) || 0;
-        item.voltage = Number(inspectorFields.voltage.value);
-        item.height = inspectorFields.height.value;
-        applyHeightBasedOutletSymbol(item);
-        item.circuit = inspectorFields.circuit.value;
-        item.manualRouteTo = Number(inspectorFields.manualRoute.value) || null;
-        item.showLegendBox = inspectorFields.legendBox.checked;
-        item.showLegendLabel = inspectorFields.legendLabel.checked;
-        item.showLegend = item.showLegendBox || item.showLegendLabel;
+        applyInspectorFieldsToItem(item);
         computeDerivedData();
         render();
     });
@@ -478,6 +511,13 @@ function bindEvents() {
         render();
         fillInspector(item);
     });
+    inspectorFields.circuit.addEventListener("input", () => {
+        const item = getSelectedItem();
+        if (!item || item.kind !== "electrical") return;
+        item.circuit = inspectorFields.circuit.value;
+        computeDerivedData();
+        render();
+    });
     inspectorFields.legendBox.addEventListener("change", () => {
         const item = getSelectedItem();
         if (!item) return;
@@ -494,6 +534,14 @@ function bindEvents() {
         item.showLegend = shouldShowLegendBox(item) || item.showLegendLabel;
         render();
     });
+    refs.editRectangleColorBtn.addEventListener("click", () => {
+        const item = getSelectedItem();
+        if (item?.kind !== "rectangle") return;
+        state.rectangleColorTargetId = item.id;
+        state.rectangleColor = item.fill || state.rectangleColor;
+        renderRectangleColorPalette();
+        refs.rectangleColorModal.hidden = false;
+    });
     refs.flipHorizontalBtn.addEventListener("click", flipSelectedItemHorizontally);
 
     canvas.addEventListener("pointerdown", onCanvasPointerDown);
@@ -507,6 +555,7 @@ function bindEvents() {
             closePriceModal();
             closeShortcutsModal();
             closeSymbolsModal();
+            closeRectangleColorModal();
         }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
             event.preventDefault();
@@ -519,6 +568,22 @@ function bindEvents() {
             if (isInput) return;
             event.preventDefault();
             selectAllItems();
+            return;
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
+            const active = document.activeElement;
+            const isInput = active && ["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName);
+            if (isInput) return;
+            event.preventDefault();
+            copySelectedItems();
+            return;
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "v") {
+            const active = document.activeElement;
+            const isInput = active && ["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName);
+            if (isInput) return;
+            event.preventDefault();
+            pasteClipboardItems();
             return;
         }
         if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
@@ -556,6 +621,69 @@ function openAppMenu() {
     refs.menuBackdrop.hidden = false;
     refs.menuToggleBtn.setAttribute("aria-expanded", "true");
     updateAppMenuState();
+}
+
+function enhanceCollapsiblePanels() {
+    document.querySelectorAll(".panel").forEach((panel, index) => {
+        if (!panel.id) {
+            panel.id = `panelAuto${index + 1}`;
+        }
+
+        if (!panel.querySelector(":scope > .panel-header-inline")) {
+            const title = panel.querySelector(":scope > h2");
+            if (title) {
+                const titleText = title.textContent || "Painel";
+                const body = document.createElement("div");
+                body.className = "panel-body";
+                body.id = `${panel.id}Body`;
+
+                while (title.nextSibling) {
+                    body.appendChild(title.nextSibling);
+                }
+
+                const header = document.createElement("div");
+                header.className = "panel-header-inline";
+                title.replaceWith(header);
+                header.appendChild(title);
+
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "ghost panel-toggle-btn";
+                button.dataset.panelToggle = panel.id;
+                button.setAttribute("aria-expanded", "true");
+                button.setAttribute("aria-controls", body.id);
+                button.textContent = "Minimizar";
+                button.setAttribute("aria-label", `Minimizar painel ${titleText}`);
+                header.appendChild(button);
+                panel.appendChild(body);
+            }
+        }
+
+        updatePanelToggleState(panel, false);
+    });
+}
+
+function toggleCadastrosPanel() {
+    togglePanelSection("cadastrosPanel");
+}
+
+function togglePanelSection(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const collapsed = !panel.classList.contains("is-collapsed");
+    updatePanelToggleState(panel, collapsed);
+}
+
+function updatePanelToggleState(panel, collapsed) {
+    panel.classList.toggle("is-collapsed", collapsed);
+    const button = panel.querySelector(':scope > .panel-header-inline [data-panel-toggle]');
+    if (!button) return;
+    button.textContent = collapsed ? "Expandir" : "Minimizar";
+    button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    if (panel.id === "cadastrosPanel") {
+        state.cadastrosCollapsed = collapsed;
+        refs.toggleCadastrosBtn = button;
+    }
 }
 
 function closeAppMenu() {
@@ -723,6 +851,13 @@ function renderPriceEditor() {
     `).join("");
 }
 
+function renderRectangleColorPalette() {
+    if (!refs.rectangleColorPalette) return;
+    refs.rectangleColorPalette.innerHTML = RECTANGLE_COLOR_OPTIONS.map(color => `
+        <button type="button" class="color-swatch${state.rectangleColor === color ? " active" : ""}" data-color="${color}" style="background:${color}" title="${color}"></button>
+    `).join("");
+}
+
 function renderShortcutsList() {
     const shortcuts = [
         { key: "Ctrl + Z", action: "Desfazer" },
@@ -799,6 +934,9 @@ function toolHintText(tool) {
         window: "Clique e arraste para desenhar janelas.",
         room: "Clique e arraste para criar ambientes.",
         electrical: "Clique na planta para posicionar equipamentos elétricos.",
+        "free-text": "Clique e arraste para criar uma legenda livre.",
+        rectangle: "Clique e arraste para criar um retangulo colorido.",
+        "template-device": "Clique na planta para posicionar o dispositivo tecnico.",
         pan: "Arraste para mover a visualização."
     };
     return map[tool];
@@ -848,12 +986,14 @@ function handleToolbarAction(action) {
         "preset-washer": 4,
         "preset-ac": 5,
         "preset-light": 8,
+        "preset-led": "light-led",
         "preset-distribution": "distribution-board",
         "preset-switch": "switch"
     };
 
     if (action in presetMap) {
         const presetId = presetMap[action];
+        state.tempTemplateDevice = null;
         if (typeof presetId === "number") {
             refs.equipmentPreset.value = String(presetId);
             const preset = state.db.equipment_presets.find(item => item.id === presetId);
@@ -863,6 +1003,32 @@ function handleToolbarAction(action) {
         }
         activateTool("electrical");
         refs.toolHint.textContent = "Clique na planta para inserir o equipamento selecionado.";
+        return;
+    }
+
+    const templateDeviceMap = {
+        "insert-dr": "dr",
+        "insert-dps": "dps"
+    };
+
+    if (action in templateDeviceMap) {
+        state.tempPreset = null;
+        state.tempTemplateDevice = templateDeviceMap[action];
+        activateTool("template-device");
+        refs.toolHint.textContent = "Clique na planta para inserir o dispositivo tecnico.";
+        return;
+    }
+
+    if (action === "rectangle-tool") {
+        const selectedItem = getSelectedItem();
+        if (selectedItem?.kind === "rectangle") {
+            state.rectangleColorTargetId = selectedItem.id;
+            state.rectangleColor = selectedItem.fill || state.rectangleColor;
+        } else {
+            state.rectangleColorTargetId = null;
+        }
+        renderRectangleColorPalette();
+        refs.rectangleColorModal.hidden = false;
         return;
     }
 
@@ -899,6 +1065,31 @@ function insertProjectTemplate(templateKey) {
     refs.toolHint.textContent = `${template.name} inserido com componentes eletricos.`;
     computeDerivedData();
     render();
+}
+
+function closeRectangleColorModal() {
+    refs.rectangleColorModal.hidden = true;
+    state.rectangleColorTargetId = null;
+}
+
+function applyRectangleColorSelection(color) {
+    if (!color) return;
+    state.rectangleColor = color;
+    renderRectangleColorPalette();
+
+    if (state.rectangleColorTargetId !== null) {
+        const item = state.currentProject.floorPlan.items.find(candidate => candidate.id === state.rectangleColorTargetId);
+        if (item?.kind === "rectangle") {
+            item.fill = color;
+            render();
+        }
+        closeRectangleColorModal();
+        return;
+    }
+
+    activateTool("rectangle");
+    refs.toolHint.textContent = "Clique e arraste para criar um retangulo colorido.";
+    closeRectangleColorModal();
 }
 
 function nextTemplateOrigin(template) {
@@ -1181,6 +1372,15 @@ function withSymbol(preset) {
 
 function createVirtualPreset(symbol) {
     const presets = {
+        "light-led": {
+            id: null,
+            name: "Ponto de luz com potencia e circuito",
+            category: "Iluminacao",
+            power: 20,
+            voltage: 127,
+            height: "Teto",
+            symbol: "light"
+        },
         "distribution-board": {
             id: null,
             name: "Quadro de distribuição",
@@ -1352,10 +1552,13 @@ function createNewProject() {
         user_id: Number(refs.userSelect.value),
         utility_id: Number(refs.utilitySelect.value),
         name: `Projeto ${nextId}`,
+        laborCost: 0,
         floorPlan: {
             zoom: 1,
             offsetX: 40,
             offsetY: 40,
+            canvasWidth: DEFAULT_CANVAS_WIDTH,
+            canvasHeight: DEFAULT_CANVAS_HEIGHT,
             items: []
         }
     };
@@ -1460,7 +1663,49 @@ function onCanvasPointerDown(event) {
         return;
     }
 
+    if (state.currentTool === "template-device") {
+        createTemplateDeviceItem(point);
+        computeDerivedData();
+        render();
+        return;
+    }
+
     state.drawingStart = point;
+}
+
+function ensureFloorPlanCanvasSize(floorPlan) {
+    floorPlan.canvasWidth = clampCanvasDimension(floorPlan.canvasWidth, DEFAULT_CANVAS_WIDTH, 800, 4000);
+    floorPlan.canvasHeight = clampCanvasDimension(floorPlan.canvasHeight, DEFAULT_CANVAS_HEIGHT, 600, 4000);
+}
+
+function clampCanvasDimension(value, fallback, min, max) {
+    const normalized = Number(value);
+    if (!Number.isFinite(normalized)) return fallback;
+    return Math.min(max, Math.max(min, Math.round(normalized / GRID_SIZE) * GRID_SIZE));
+}
+
+function syncCanvasSizeInputs() {
+    if (!state.currentProject) return;
+    refs.planWidthInput.value = state.currentProject.floorPlan.canvasWidth || DEFAULT_CANVAS_WIDTH;
+    refs.planHeightInput.value = state.currentProject.floorPlan.canvasHeight || DEFAULT_CANVAS_HEIGHT;
+}
+
+function applyCanvasSizeToElement() {
+    if (!state.currentProject) return;
+    ensureFloorPlanCanvasSize(state.currentProject.floorPlan);
+    canvas.width = state.currentProject.floorPlan.canvasWidth;
+    canvas.height = state.currentProject.floorPlan.canvasHeight;
+}
+
+function applyCanvasSizeFromInputs() {
+    if (!state.currentProject) return;
+    const nextWidth = clampCanvasDimension(refs.planWidthInput.value, DEFAULT_CANVAS_WIDTH, 800, 4000);
+    const nextHeight = clampCanvasDimension(refs.planHeightInput.value, DEFAULT_CANVAS_HEIGHT, 600, 4000);
+    state.currentProject.floorPlan.canvasWidth = nextWidth;
+    state.currentProject.floorPlan.canvasHeight = nextHeight;
+    syncCanvasSizeInputs();
+    applyCanvasSizeToElement();
+    render();
 }
 
 function onCanvasPointerMove(event) {
@@ -1557,6 +1802,16 @@ function snap(point) {
 }
 
 function addDrawnItem(tool, start, end) {
+    if (tool === "free-text") {
+        createFreeTextItem(start, end);
+        return;
+    }
+
+    if (tool === "rectangle") {
+        createRectangleItem(start, end);
+        return;
+    }
+
     const item = {
         id: Date.now(),
         kind: tool,
@@ -1566,6 +1821,49 @@ function addDrawnItem(tool, start, end) {
         height: Math.max(GRID_SIZE, Math.abs(end.y - start.y)),
         name: tool === "room" ? "Ambiente" : tool === "wall" ? "Parede" : tool === "door" ? "Porta" : "Janela",
         type: tool,
+        showLegend: false
+    };
+    state.currentProject.floorPlan.items.push(item);
+    state.selectedId = item.id;
+    state.selectedIds = [item.id];
+    fillInspector(item);
+}
+
+function createFreeTextItem(start, end) {
+    const text = window.prompt("Digite a legenda:");
+    if (!text) return;
+    const item = {
+        id: Date.now(),
+        kind: "free-text",
+        x: Math.min(start.x, end.x),
+        y: Math.min(start.y, end.y),
+        width: Math.max(120, Math.abs(end.x - start.x)),
+        height: Math.max(40, Math.abs(end.y - start.y)),
+        text,
+        size: 16,
+        align: "left",
+        baseline: "top",
+        name: text,
+        type: "Legenda",
+        showLegend: false
+    };
+    state.currentProject.floorPlan.items.push(item);
+    state.selectedId = item.id;
+    state.selectedIds = [item.id];
+    fillInspector(item);
+}
+
+function createRectangleItem(start, end) {
+    const item = {
+        id: Date.now(),
+        kind: "rectangle",
+        x: Math.min(start.x, end.x),
+        y: Math.min(start.y, end.y),
+        width: Math.max(GRID_SIZE, Math.abs(end.x - start.x)),
+        height: Math.max(GRID_SIZE, Math.abs(end.y - start.y)),
+        fill: state.rectangleColor,
+        name: "Retangulo",
+        type: "Retangulo",
         showLegend: false
     };
     state.currentProject.floorPlan.items.push(item);
@@ -1608,6 +1906,27 @@ function createElectricalItem(point) {
     }
     state.currentProject.floorPlan.items.push(item);
     connectSwitchPairs(state.currentProject.floorPlan.items.filter(current => current.kind === "electrical"));
+    state.selectedId = item.id;
+    state.selectedIds = [item.id];
+    fillInspector(item);
+}
+
+function createTemplateDeviceItem(point) {
+    const deviceKind = state.tempTemplateDevice || "dr";
+    const item = {
+        id: Date.now(),
+        kind: "template-device",
+        x: point.x,
+        y: point.y,
+        width: deviceKind === "dps" ? 12 : 24,
+        height: deviceKind === "dps" ? 20 : 24,
+        device: deviceKind,
+        layer: null,
+        name: deviceKind.toUpperCase(),
+        type: "template-device",
+        showLegend: false
+    };
+    state.currentProject.floorPlan.items.push(item);
     state.selectedId = item.id;
     state.selectedIds = [item.id];
     fillInspector(item);
@@ -1659,6 +1978,40 @@ function nudgeSelectedItems(dx, dy) {
     render();
 }
 
+function copySelectedItems() {
+    const selectedItems = getSelectedItems();
+    if (!selectedItems.length) return;
+    state.clipboardItems = selectedItems.map(item => structuredClone(item));
+    refs.toolHint.textContent = `${selectedItems.length} elemento(s) copiado(s).`;
+}
+
+function pasteClipboardItems() {
+    if (!state.clipboardItems.length) return;
+
+    pushHistory();
+    const baseId = Date.now() + Math.floor(Math.random() * 1000);
+    let nextId = 1;
+    const makeId = () => baseId + nextId++;
+    const pastedItems = state.clipboardItems.map(item => {
+        const clone = structuredClone(item);
+        clone.id = makeId();
+        clone.x = Number(clone.x || 0) + GRID_SIZE * 2;
+        clone.y = Number(clone.y || 0) + GRID_SIZE * 2;
+        if (Array.isArray(clone.routeTos)) clone.routeTos = [];
+        if ("routeTo" in clone) clone.routeTo = null;
+        if ("manualRouteTo" in clone) clone.manualRouteTo = null;
+        return clone;
+    });
+
+    state.currentProject.floorPlan.items.push(...pastedItems);
+    state.selectedIds = pastedItems.map(item => item.id);
+    state.selectedId = state.selectedIds[0] || null;
+    fillInspector(state.selectedIds.length === 1 ? getSelectedItem() : null);
+    computeDerivedData();
+    render();
+    refs.toolHint.textContent = `${pastedItems.length} elemento(s) colado(s).`;
+}
+
 function getItemBounds(item) {
     if (!item) return { x: 0, y: 0, width: 0, height: 0 };
 
@@ -1669,6 +2022,15 @@ function getItemBounds(item) {
             y: Number(item.y || 0) - size / 2,
             width: size,
             height: size,
+        };
+    }
+
+    if (item.kind === "free-text") {
+        return {
+            x: Number(item.x || 0),
+            y: Number(item.y || 0),
+            width: Math.max(60, Number(item.width || 120)),
+            height: Math.max(24, Number(item.height || 40)),
         };
     }
 
@@ -1855,7 +2217,7 @@ function resizeSelectedItem(item, dx, dy) {
 }
 
 function fillInspector(item) {
-    inspectorFields.name.value = item?.name || "";
+    inspectorFields.name.value = item?.kind === "free-text" ? item.text || "" : item?.name || "";
     inspectorFields.type.value = item?.type || "";
     inspectorFields.power.value = item?.power || "";
     inspectorFields.voltage.value = String(item?.voltage || 127);
@@ -1864,7 +2226,68 @@ function fillInspector(item) {
     fillManualRouteOptions(item);
     inspectorFields.legendBox.checked = shouldShowLegendBox(item);
     inspectorFields.legendLabel.checked = shouldShowObjectLabel(item);
+    refs.editRectangleColorBtn.hidden = item?.kind !== "rectangle";
     refs.flipHorizontalBtn.disabled = !getSelectedItems().length;
+}
+
+function applyInspectorFieldsToItem(item) {
+    item.name = inspectorFields.name.value;
+    if (item.kind === "free-text") {
+        item.text = inspectorFields.name.value;
+    }
+    item.type = inspectorFields.type.value;
+    if (item.kind === "electrical") {
+        item.power = Number(inspectorFields.power.value) || 0;
+        item.voltage = Number(inspectorFields.voltage.value);
+        item.height = inspectorFields.height.value;
+        applyHeightBasedOutletSymbol(item);
+        item.circuit = inspectorFields.circuit.value;
+        item.manualRouteTo = Number(inspectorFields.manualRoute.value) || null;
+    }
+    item.showLegendBox = inspectorFields.legendBox.checked;
+    item.showLegendLabel = inspectorFields.legendLabel.checked;
+    item.showLegend = item.showLegendBox || item.showLegendLabel;
+}
+
+function normalizeFloorPlanItems(items) {
+    items.forEach(item => {
+        if (!item || typeof item !== "object") return;
+
+        if (["wall", "room", "door", "window"].includes(item.kind)) {
+            item.width = normalizeNumericDimension(item.width, GRID_SIZE);
+            item.height = normalizeNumericDimension(item.height, GRID_SIZE);
+        }
+
+        if (item.kind === "rectangle") {
+            item.width = normalizeNumericDimension(item.width, GRID_SIZE);
+            item.height = normalizeNumericDimension(item.height, GRID_SIZE);
+            item.fill = item.fill || "#f6c86f";
+        }
+
+        if (item.kind === "free-text") {
+            item.width = normalizeNumericDimension(item.width, 120);
+            item.height = normalizeNumericDimension(item.height, 40);
+            item.text = item.text || item.name || "Legenda";
+            item.name = item.text;
+        }
+
+        if (item.kind === "template-device") {
+            item.width = normalizeNumericDimension(item.width, item.device === "dps" ? 12 : 24);
+            item.height = normalizeNumericDimension(item.height, item.device === "dps" ? 20 : 24);
+        }
+
+        if (item.kind === "template-line") {
+            item.width = normalizeNumericDimension(item.width, GRID_SIZE);
+            item.height = normalizeNumericDimension(item.height, GRID_SIZE);
+            item.x2 = Number.isFinite(Number(item.x2)) ? Number(item.x2) : 0;
+            item.y2 = Number.isFinite(Number(item.y2)) ? Number(item.y2) : 0;
+        }
+    });
+}
+
+function normalizeNumericDimension(value, fallback) {
+    const normalized = Number(value);
+    return Number.isFinite(normalized) && normalized > 0 ? normalized : fallback;
 }
 
 function fillManualRouteOptions(item) {
@@ -1980,12 +2403,15 @@ function render() {
     const rooms = items.filter(item => item.kind === "room");
     const openings = items.filter(item => item.kind === "door" || item.kind === "window");
     const walls = items.filter(item => item.kind === "wall");
+    const rectangles = items.filter(item => item.kind === "rectangle");
     const templateLines = items.filter(item => item.kind === "template-line");
     const templateDevices = items.filter(item => item.kind === "template-device" && item.layer !== "overlay");
     const templateOverlayDevices = items.filter(item => item.kind === "template-device" && item.layer === "overlay");
     const templateTexts = items.filter(item => item.kind === "template-text");
+    const freeTexts = items.filter(item => item.kind === "free-text");
     const electrical = items.filter(item => item.kind === "electrical");
 
+    rectangles.forEach(drawRectangle);
     rooms.forEach(drawRoom);
     walls.forEach(drawWall);
     templateOverlayDevices.forEach(drawTemplateDevice);
@@ -1993,6 +2419,7 @@ function render() {
     templateLines.forEach(drawTemplateLine);
     templateDevices.forEach(drawTemplateDevice);
     templateTexts.forEach(drawTemplateText);
+    freeTexts.forEach(drawFreeText);
     drawRoutes(electrical);
     electrical.forEach(drawElectrical);
     drawElectricalLegend(electrical);
@@ -2233,6 +2660,35 @@ function drawTemplateText(item) {
     ctx.rotate(rotation);
     ctx.translate(-item.x, -item.y);
     ctx.fillText(item.text || "", item.x, item.y);
+    ctx.restore();
+}
+
+function drawFreeText(item) {
+    ctx.save();
+    const rotation = Number(item.rotation || 0) * Math.PI / 180;
+    ctx.fillStyle = "#111111";
+    ctx.font = canvasFont(item.size || 16, "Segoe UI", "700");
+    ctx.textAlign = item.align || "left";
+    ctx.textBaseline = item.baseline || "top";
+    ctx.translate(item.x, item.y);
+    ctx.rotate(rotation);
+    ctx.translate(-item.x, -item.y);
+    ctx.fillText(item.text || "", item.x, item.y);
+    ctx.restore();
+}
+
+function drawRectangle(item) {
+    ctx.save();
+    const rotation = Number(item.rotation || 0) * Math.PI / 180;
+    const cx = item.x + item.width / 2;
+    const cy = item.y + item.height / 2;
+    ctx.translate(cx, cy);
+    ctx.rotate(rotation);
+    ctx.fillStyle = `${item.fill || "#f6c86f"}cc`;
+    ctx.strokeStyle = item.fill || "#f6c86f";
+    ctx.lineWidth = 2;
+    ctx.fillRect(-item.width / 2, -item.height / 2, item.width, item.height);
+    ctx.strokeRect(-item.width / 2, -item.height / 2, item.width, item.height);
     ctx.restore();
 }
 
@@ -2952,10 +3408,14 @@ function drawElectricalLegend(electrical) {
     ctx.font = canvasFont(12);
     const textWidth = Math.max(220, ...lines.map(line => ctx.measureText(line).width));
     const boxWidth = Math.min(420, textWidth + 28);
-    const bounds = electrical.length ? selectionBounds(electrical) : { x: 40, y: 40, width: 0, height: 0 };
-    const x = Math.min(canvas.width / state.zoom - boxWidth - 40, Math.max(40, bounds.x + bounds.width + 40));
-    let y = Math.max(40, bounds.y);
     const boxHeight = 28 + lines.length * 22;
+    const padding = 24;
+    const offsetX = state.currentProject.floorPlan.offsetX || 0;
+    const offsetY = state.currentProject.floorPlan.offsetY || 0;
+    const right = canvas.width / state.zoom - offsetX - padding;
+    const bottom = canvas.height / state.zoom - offsetY - padding;
+    const x = Math.max(24, right - boxWidth + 12);
+    let y = Math.max(40, bottom - boxHeight + 18);
 
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#777777";
@@ -3234,8 +3694,13 @@ function capturePlanImage() {
 }
 
 async function saveProject() {
+    const selectedItem = getSelectedItem();
+    if (selectedItem) {
+        applyInspectorFieldsToItem(selectedItem);
+    }
     state.currentProject.user_id = Number(refs.userSelect.value);
     state.currentProject.utility_id = Number(refs.utilitySelect.value);
+    state.currentProject.laborCost = Number(refs.laborCostInput.value || 0);
     state.currentProject.floorPlan.zoom = state.zoom;
     state.currentProject.floorPlan.textSize = state.textSize;
     const response = await fetch("api.php?action=saveProject", {

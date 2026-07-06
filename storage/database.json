@@ -563,7 +563,8 @@
                         "showLegend": true,
                         "presetId": 3,
                         "routeTo": null,
-                        "command": "a"
+                        "command": "a",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228755534,
@@ -581,7 +582,8 @@
                         "showLegend": true,
                         "presetId": 3,
                         "routeTo": null,
-                        "command": "b"
+                        "command": "b",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228757398,
@@ -599,7 +601,8 @@
                         "showLegend": true,
                         "presetId": 2,
                         "routeTo": null,
-                        "command": "a"
+                        "command": "a",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228759462,
@@ -617,7 +620,8 @@
                         "showLegend": true,
                         "presetId": 1,
                         "routeTo": null,
-                        "command": "a"
+                        "command": "a",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228766836,
@@ -668,7 +672,8 @@
                         "showLegend": true,
                         "presetId": 1,
                         "routeTo": null,
-                        "command": "b"
+                        "command": "b",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228784864,
@@ -686,7 +691,8 @@
                         "showLegend": true,
                         "presetId": 1,
                         "routeTo": null,
-                        "command": "c"
+                        "command": "c",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228786462,
@@ -704,7 +710,8 @@
                         "showLegend": true,
                         "presetId": 1,
                         "routeTo": null,
-                        "command": "d"
+                        "command": "d",
+                        "routeTos": []
                     },
                     {
                         "id": 1783228790068,
@@ -738,9 +745,59 @@
                         "name": "Porta",
                         "type": "door",
                         "showLegend": false
+                    },
+                    {
+                        "id": 1783351114123,
+                        "kind": "electrical",
+                        "x": 580,
+                        "y": 240,
+                        "width": 20,
+                        "height": "Teto",
+                        "size": 40,
+                        "name": "Luminária LED",
+                        "type": "Iluminação",
+                        "symbol": "light",
+                        "power": 18,
+                        "voltage": 127,
+                        "circuit": "4",
+                        "showLegend": true,
+                        "showLegendBox": true,
+                        "showLegendLabel": true,
+                        "presetId": 8,
+                        "routeCenter": true,
+                        "routeTos": [],
+                        "manualRouteTo": null,
+                        "routeTo": null,
+                        "command": "a"
+                    },
+                    {
+                        "id": 1783351115378,
+                        "kind": "electrical",
+                        "x": 640,
+                        "y": 80,
+                        "width": 20,
+                        "height": "Teto",
+                        "size": 40,
+                        "name": "Luminária LED",
+                        "type": "Iluminação",
+                        "symbol": "light",
+                        "power": 18,
+                        "voltage": 127,
+                        "circuit": "",
+                        "showLegend": true,
+                        "showLegendBox": true,
+                        "showLegendLabel": true,
+                        "presetId": 8,
+                        "routeCenter": true,
+                        "routeTos": [],
+                        "manualRouteTo": null,
+                        "routeTo": null,
+                        "command": "b"
                     }
                 ],
-                "textSize": "minimum"
+                "textSize": "minimum",
+                "canvasWidth": 1400,
+                "canvasHeight": 900
             }
         },
         {
@@ -1078,7 +1135,7 @@
                         "x2": 360,
                         "y2": 0,
                         "width": 360,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1090,7 +1147,7 @@
                         "y": 710,
                         "x2": 0,
                         "y2": 160,
-                        "width": 0,
+                        "width": 20,
                         "height": 160,
                         "name": "Linha tecnica",
                         "type": "template-line",
@@ -1103,7 +1160,7 @@
                         "y": 710,
                         "x2": 0,
                         "y2": 160,
-                        "width": 0,
+                        "width": 20,
                         "height": 160,
                         "name": "Linha tecnica",
                         "type": "template-line",
@@ -1117,7 +1174,7 @@
                         "x2": 360,
                         "y2": 0,
                         "width": 360,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1130,7 +1187,7 @@
                         "x2": 85,
                         "y2": 0,
                         "width": 85,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1143,7 +1200,7 @@
                         "x2": 135,
                         "y2": 0,
                         "width": 135,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1155,7 +1212,7 @@
                         "y": 740,
                         "x2": 0,
                         "y2": 90,
-                        "width": 0,
+                        "width": 20,
                         "height": 90,
                         "name": "Linha tecnica",
                         "type": "template-line",
@@ -1169,7 +1226,7 @@
                         "x2": 80,
                         "y2": 0,
                         "width": 80,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1182,7 +1239,7 @@
                         "x2": 80,
                         "y2": 0,
                         "width": 80,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1195,7 +1252,7 @@
                         "x2": 80,
                         "y2": 0,
                         "width": 80,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1208,7 +1265,7 @@
                         "x2": 155,
                         "y2": 0,
                         "width": 155,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1221,7 +1278,7 @@
                         "x2": 155,
                         "y2": 0,
                         "width": 155,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1234,7 +1291,7 @@
                         "x2": 155,
                         "y2": 0,
                         "width": 155,
-                        "height": 0,
+                        "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
                         "showLegend": false
@@ -1246,7 +1303,7 @@
                         "y": 780,
                         "x2": 0,
                         "y2": 55,
-                        "width": 0,
+                        "width": 20,
                         "height": 55,
                         "name": "Linha tecnica",
                         "type": "template-line",
@@ -1259,7 +1316,7 @@
                         "y": 835,
                         "x2": 0,
                         "y2": 20,
-                        "width": 0,
+                        "width": 20,
                         "height": 20,
                         "name": "Linha tecnica",
                         "type": "template-line",
@@ -2170,9 +2227,37 @@
                         "manualRouteTo": 1783315116723,
                         "routeTo": 1783315116723,
                         "command": "j"
+                    },
+                    {
+                        "id": 1783351983598,
+                        "kind": "rectangle",
+                        "x": 340,
+                        "y": 0,
+                        "width": 420,
+                        "height": 420,
+                        "fill": "#b8c0ff",
+                        "name": "Retangulo",
+                        "type": "Retangulo",
+                        "showLegend": false,
+                        "showLegendBox": false,
+                        "showLegendLabel": false
+                    },
+                    {
+                        "id": 1783351986221,
+                        "kind": "rectangle",
+                        "x": 100,
+                        "y": 80,
+                        "width": 20,
+                        "height": 20,
+                        "fill": "#b8c0ff",
+                        "name": "Retangulo",
+                        "type": "Retangulo",
+                        "showLegend": false
                     }
                 ],
-                "textSize": "minimum"
+                "textSize": "minimum",
+                "canvasWidth": 1400,
+                "canvasHeight": 900
             }
         }
     ]
