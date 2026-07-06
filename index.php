@@ -23,7 +23,7 @@ declare(strict_types=1);
         <section class="panel cadastros-panel" id="cadastrosPanel">
             <div class="panel-header-inline">
                 <h2>Cadastros</h2>
-                <button id="toggleCadastrosBtn" class="ghost panel-toggle-btn" type="button" aria-expanded="true" aria-controls="cadastrosBody">Minimizar</button>
+                <button id="toggleCadastrosBtn" class="ghost panel-toggle-btn" type="button" aria-expanded="true" aria-controls="cadastrosBody" data-panel-toggle="cadastrosPanel">Minimizar</button>
             </div>
             <div id="cadastrosBody" class="panel-body">
             <label>Usuário
