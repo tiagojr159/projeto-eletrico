@@ -39,6 +39,7 @@ const SYMBOL_LIBRARY = [
     { key: "circuit-down", name: "Circuito que desce", category: "Condutor", power: 0, voltage: 127, height: "Média", circuitType: "Infraestrutura" },
     { key: "circuit-pass", name: "Circuito que passa", category: "Condutor", power: 0, voltage: 127, height: "Média", circuitType: "Infraestrutura" },
     { key: "switch-1", name: "Interruptor de 1 seção", category: "Interruptor", power: 0, voltage: 127, height: "Média", circuitType: "Comando" },
+    { key: "switch-wall", name: "Interruptor simples na parede", category: "Interruptor", power: 0, voltage: 127, height: "Media", circuitType: "Comando" },
     { key: "outlet-light-low", name: "Tomada de luz baixa", category: "Tomada", power: 100, voltage: 127, height: "Baixa", circuitType: "TUG" },
     { key: "outlet-light-medium", name: "Tomada de luz média alta", category: "Tomada", power: 100, voltage: 127, height: "Média", circuitType: "TUG" },
     { key: "outlet-light-high", name: "Tomada de luz alta", category: "Tomada", power: 100, voltage: 127, height: "Alta", circuitType: "TUG" },
@@ -75,7 +76,7 @@ const PROJECT_TEMPLATES = {
         devices: [{ kind: "floor-cutout", x: 85, y: 270, width: 120, height: 40, layer: "overlay" }],
         electrical: [
             { name: "Ponto de luz banheiro", type: "Iluminacao", symbol: "light", x: 150, y: 140, power: 100, height: "Teto", labelDx: 36, labelDy: 58, routeCenter: true },
-            { name: "Interruptor banheiro", type: "Interruptor", symbol: "switch", x: 110, y: 275, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Interruptor banheiro", type: "Interruptor", symbol: "switch-wall", x: 110, y: 275, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
             { name: "Tomada lavatorio 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 25, y: 145, power: 600, height: "Media", labelDx: 32, labelDy: 26 },
             { name: "Tomada apoio 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 275, y: 145, power: 600, height: "Media", rotation: 180, labelDx: 30, labelDy: 26 },
             { name: "Chuveiro eletrico", type: "TUE", symbol: "shower", x: 225, y: 55, power: 5500, voltage: 220, height: "Alta", labelDx: 28, labelDy: 8 }
@@ -92,11 +93,11 @@ const PROJECT_TEMPLATES = {
         devices: [{ kind: "floor-cutout", x: 320, y: 250, width: 90, height: 40, layer: "overlay" }],
         electrical: [
             { name: "Ponto de luz quarto", type: "Iluminacao", symbol: "light", x: 210, y: 130, power: 160, height: "Teto", labelDx: 26, labelDy: 42, routeCenter: true },
-            { name: "Interruptor quarto", type: "Interruptor", symbol: "switch", x: 335, y: 252, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Interruptor quarto", type: "Interruptor", symbol: "switch-wall", x: 335, y: 252, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
             { name: "Tomada cabeceira esquerda", type: "Tomada", symbol: "outlet-light-low", x: 35, y: 130, power: 100, height: "Baixa", labelDx: 30, labelDy: 18 },
-            { name: "Tomada cabeceira direita", type: "Tomada", symbol: "outlet-light-low", x: 385, y: 130, power: 100, height: "Baixa", rotation: 180, labelDx: -108, labelDy: 18 },
+            { name: "Tomada cabeceira direita", type: "Tomada", symbol: "outlet-light-low", x: 385, y: 130, power: 100, height: "Baixa", rotation: 180, labelDx: -34, labelDy: 20 },
             { name: "Tomada TV quarto 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 270, y: 260, power: 600, height: "Media", rotation: -90, labelDx: 28, labelDy: 22 },
-            { name: "Ar condicionado 10kBTU", type: "TUE", symbol: "ac", x: 335, y: 45, power: 1522, voltage: 220, height: "Alta", labelDx: -92, labelDy: 18 }
+            { name: "Ar condicionado 10kBTU", type: "TUE", symbol: "ac", x: 335, y: 45, power: 1522, voltage: 220, height: "Alta", labelDx: -34, labelDy: 20 }
         ]
     },
     living: {
@@ -131,11 +132,11 @@ const PROJECT_TEMPLATES = {
         windows: [{ x: 115, y: 0, width: 200, height: 18 }],
         electrical: [
             { name: "Ponto de luz terraco", type: "Iluminacao", symbol: "light", x: 210, y: 118, power: 100, height: "Teto", labelDx: 28, labelDy: 40, routeCenter: true },
-            { name: "Interruptor terraco", type: "Interruptor", symbol: "switch", x: 170, y: 222, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
+            { name: "Interruptor terraco", type: "Interruptor", symbol: "switch-wall", x: 170, y: 222, power: 0, height: "Media", labelDx: 18, labelDy: 34 },
             { name: "Arandela externa", type: "Iluminacao", symbol: "light-wall", x: 35, y: 115, power: 100, height: "Media", labelDx: 30, labelDy: 18 },
-            { name: "Tomada externa 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 385, y: 115, power: 600, height: "Media", rotation: 180, labelDx: -122, labelDy: 18 },
+            { name: "Tomada externa 600VA", type: "Tomada", symbol: "power-outlet-wall", x: 385, y: 115, power: 600, height: "Media", rotation: 180, labelDx: -34, labelDy: 20 },
             { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 35, y: 165, power: 100, height: "Baixa", labelDx: 30, labelDy: 18 },
-            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 385, y: 165, power: 100, height: "Baixa", rotation: 180, labelDx: -92, labelDy: 18 }
+            { name: "Tomada de uso geral", type: "Tomada", symbol: "outlet-light-low", x: 385, y: 165, power: 100, height: "Baixa", rotation: 180, labelDx: -34, labelDy: 20 }
         ]
     },
     qgbt: {
@@ -268,7 +269,8 @@ const inspectorFields = {
     height: document.getElementById("propHeight"),
     circuit: document.getElementById("propCircuit"),
     manualRoute: document.getElementById("propManualRoute"),
-    legend: document.getElementById("propLegend"),
+    legendBox: document.getElementById("propLegendBox"),
+    legendLabel: document.getElementById("propLegendLabel"),
 };
 
 async function bootstrap() {
@@ -451,7 +453,9 @@ function bindEvents() {
         applyHeightBasedOutletSymbol(item);
         item.circuit = inspectorFields.circuit.value;
         item.manualRouteTo = Number(inspectorFields.manualRoute.value) || null;
-        item.showLegend = inspectorFields.legend.checked;
+        item.showLegendBox = inspectorFields.legendBox.checked;
+        item.showLegendLabel = inspectorFields.legendLabel.checked;
+        item.showLegend = item.showLegendBox || item.showLegendLabel;
         computeDerivedData();
         render();
     });
@@ -474,11 +478,20 @@ function bindEvents() {
         render();
         fillInspector(item);
     });
-    inspectorFields.legend.addEventListener("change", () => {
+    inspectorFields.legendBox.addEventListener("change", () => {
         const item = getSelectedItem();
         if (!item) return;
         pushHistory();
-        item.showLegend = inspectorFields.legend.checked;
+        item.showLegendBox = inspectorFields.legendBox.checked;
+        item.showLegend = item.showLegendBox || shouldShowObjectLabel(item);
+        render();
+    });
+    inspectorFields.legendLabel.addEventListener("change", () => {
+        const item = getSelectedItem();
+        if (!item) return;
+        pushHistory();
+        item.showLegendLabel = inspectorFields.legendLabel.checked;
+        item.showLegend = shouldShowLegendBox(item) || item.showLegendLabel;
         render();
     });
     refs.flipHorizontalBtn.addEventListener("click", flipSelectedItemHorizontally);
@@ -857,7 +870,10 @@ function handleToolbarAction(action) {
         const item = getSelectedItem();
         if (!item) return;
         pushHistory();
-        item.showLegend = !item.showLegend;
+        const nextValue = !(shouldShowLegendBox(item) || shouldShowObjectLabel(item));
+        item.showLegendBox = nextValue;
+        item.showLegendLabel = nextValue;
+        item.showLegend = nextValue;
         fillInspector(item);
         render();
         return;
@@ -1049,6 +1065,8 @@ function templateElectricalPoint(point, origin, makeId) {
         rotation: point.rotation || 0,
         circuit: "",
         showLegend: point.symbol !== "switch",
+        showLegendBox: point.showLegendBox ?? point.symbol !== "switch",
+        showLegendLabel: point.showLegendLabel ?? point.symbol !== "switch",
         presetId: null,
         labelDx: point.labelDx,
         labelDy: point.labelDy,
@@ -1096,6 +1114,7 @@ function technicalSymbolSvg(key) {
         "circuit-down": `<svg ${common}><path d="M10 11l18 18" ${stroke}/><circle cx="10" cy="11" r="2.3" fill="currentColor"/><path d="M27.5 28.5l.5-6.5-6.5.5" ${stroke}/></svg>`,
         "circuit-pass": `<svg ${common}><path d="M7 30l11-9 8 0 7-10" ${stroke}/><circle cx="7" cy="30" r="2.3" fill="currentColor"/><circle cx="26" cy="21" r="2.2" fill="currentColor"/><path d="M32.5 11.5l.5 5.8-5.8-.4" ${stroke}/></svg>`,
         "switch-1": `<svg ${common}><circle cx="23" cy="20" r="8" ${stroke}/><text x="32" y="14" font-size="7" fill="currentColor">a</text></svg>`,
+        "switch-wall": `<svg ${common}>${wall}<path d="M9 20h9" ${stroke}/>${outletTriangle}<text x="31" y="14" font-size="7" fill="currentColor">a</text></svg>`,
         "outlet-light-low": `<svg ${common}>${wall}<path d="M9 20h9" ${stroke}/>${outletTriangle}</svg>`,
         "outlet-light-medium": `<svg ${common}>${wall}<path d="M9 20h9" ${stroke}/>${outletTriangle}<path d="M16 27h14" stroke="currentColor" stroke-width="1.5"/></svg>`,
         "outlet-light-high": `<svg ${common}>${wall}<path d="M9 20h9" ${stroke}/>${filledOutletTriangle}</svg>`,
@@ -1217,7 +1236,7 @@ function shouldUseHeightBasedOutletSymbol(item) {
 }
 
 function isSwitchPoint(item) {
-    return (item?.symbol || inferSymbol(item)) === "switch";
+    return ["switch", "switch-1", "switch-wall"].includes(item?.symbol || inferSymbol(item));
 }
 
 function connectSwitchPairs(points) {
@@ -1574,6 +1593,8 @@ function createElectricalItem(point) {
         height: normalizedPreset?.height || "Baixa",
         circuit: "",
         showLegend: true,
+        showLegendBox: true,
+        showLegendLabel: true,
         presetId: normalizedPreset?.id || null,
         routeCenter: (normalizedPreset?.symbol || "") === "light",
         routeTos: [],
@@ -1841,7 +1862,8 @@ function fillInspector(item) {
     inspectorFields.height.value = item?.height || "Baixa";
     inspectorFields.circuit.value = item?.circuit || "";
     fillManualRouteOptions(item);
-    inspectorFields.legend.checked = Boolean(item?.showLegend);
+    inspectorFields.legendBox.checked = shouldShowLegendBox(item);
+    inspectorFields.legendLabel.checked = shouldShowObjectLabel(item);
     refs.flipHorizontalBtn.disabled = !getSelectedItems().length;
 }
 
@@ -1861,6 +1883,16 @@ function routeTargetLabel(item) {
     const symbol = symbolAbbreviation(item);
     const circuit = item.circuit ? ` - circ. ${circuitNumberFromLabel(item.circuit)}` : "";
     return `${item.name || symbol}${circuit}`;
+}
+
+function shouldShowLegendBox(item) {
+    if (!item) return false;
+    return item.showLegendBox !== undefined ? Boolean(item.showLegendBox) : Boolean(item.showLegend);
+}
+
+function shouldShowObjectLabel(item) {
+    if (!item) return false;
+    return item.showLegendLabel !== undefined ? Boolean(item.showLegendLabel) : Boolean(item.showLegend);
 }
 
 function escapeHtml(value) {
@@ -2864,15 +2896,16 @@ function drawAirConditionerSymbol() {
 }
 
 function drawElectricalCallout(item, symbol) {
-    if (!item.showLegend) return;
+    if (!shouldShowObjectLabel(item)) return;
 
     ctx.save();
     ctx.fillStyle = "#000000";
     ctx.font = canvasFont(16);
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    const labelX = item.x + Number(item.labelDx ?? 30);
-    const labelY = item.y + Number(item.labelDy ?? 0);
+    const offset = normalizedCalloutOffset(item, symbol);
+    const labelX = item.x + offset.x;
+    const labelY = item.y + offset.y;
 
     if (symbol !== "light" && item.power >= BRAZILIAN_ELECTRICAL_RULES.generalOutletBedroomLivingVa) {
         const powerLabel = item.power >= 1000 ? `${item.power}W` : `${item.power}VA`;
@@ -2883,7 +2916,7 @@ function drawElectricalCallout(item, symbol) {
         ctx.fillText(`-${circuitNumberFromLabel(item.circuit)}-`, labelX - 2, labelY + 12);
     }
 
-    if (item.showLegend && item.name && !["Tomada de uso geral", "Luminaria LED"].includes(removeAccents(item.name))) {
+    if (item.name && !["Tomada de uso geral", "Luminaria LED"].includes(removeAccents(item.name))) {
         ctx.font = canvasFont(14);
         ctx.fillText(item.name.replace(/\s*\d+W$/i, ""), labelX, labelY + 28);
     }
@@ -2891,27 +2924,61 @@ function drawElectricalCallout(item, symbol) {
     ctx.restore();
 }
 
+function normalizedCalloutOffset(item, symbol) {
+    let x = Number(item.labelDx ?? 30);
+    let y = Number(item.labelDy ?? 0);
+    const distance = Math.hypot(x, y);
+    const maxDistance = symbol === "light" ? 48 : 38;
+
+    if (distance > maxDistance) {
+        const ratio = maxDistance / distance;
+        x *= ratio;
+        y *= ratio;
+    }
+
+    if (Math.abs(x) < 16 && Math.abs(y) < 10) {
+        x = x < 0 ? -24 : 24;
+    }
+
+    return { x, y };
+}
+
 function drawElectricalLegend(electrical) {
-    const visible = electrical.filter(item => item.showLegend);
+    const visible = electrical.filter(shouldShowLegendBox);
     if (!visible.length) return;
 
-    const x = 920;
-    let y = 40;
+    const lines = visible.slice(0, 12).map(legendLineText);
     ctx.save();
+    ctx.font = canvasFont(12);
+    const textWidth = Math.max(220, ...lines.map(line => ctx.measureText(line).width));
+    const boxWidth = Math.min(420, textWidth + 28);
+    const bounds = electrical.length ? selectionBounds(electrical) : { x: 40, y: 40, width: 0, height: 0 };
+    const x = Math.min(canvas.width / state.zoom - boxWidth - 40, Math.max(40, bounds.x + bounds.width + 40));
+    let y = Math.max(40, bounds.y);
+    const boxHeight = 28 + lines.length * 22;
+
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#777777";
     ctx.lineWidth = 1;
-    ctx.fillRect(x - 12, y - 24, 300, 28 + visible.length * 22);
-    ctx.strokeRect(x - 12, y - 24, 300, 28 + visible.length * 22);
+    ctx.fillRect(x - 12, y - 24, boxWidth, boxHeight);
+    ctx.strokeRect(x - 12, y - 24, boxWidth, boxHeight);
     ctx.fillStyle = "#000000";
     ctx.font = canvasFont(13, "Arial", "bold");
     ctx.fillText("LEGENDA", x, y - 6);
     ctx.font = canvasFont(12);
-    visible.slice(0, 10).forEach((item, index) => {
+    lines.forEach(line => {
         y += 22;
-        ctx.fillText(`${symbolAbbreviation(item)} - ${item.name} (${item.power || 0}${item.power >= 1000 ? "W" : "VA"})`, x, y);
+        ctx.fillText(line, x, y);
     });
     ctx.restore();
+}
+
+function legendLineText(item) {
+    const abbreviation = symbolAbbreviation(item) || "Ponto";
+    const name = String(item.name || item.type || abbreviation || "Item").trim();
+    const power = Number(item.power || 0);
+    const unit = power >= 1000 ? "W" : "VA";
+    return `${abbreviation} - ${name} (${power}${unit})`;
 }
 
 function autoRouteElectricalPoints() {

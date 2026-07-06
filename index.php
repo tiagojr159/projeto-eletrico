@@ -271,8 +271,12 @@ declare(strict_types=1);
                             </select>
                         </label>
                         <label class="checkbox">
-                            <input id="propLegend" type="checkbox">
-                            Exibir na legenda
+                            <input id="propLegendBox" type="checkbox">
+                            Exibir na caixa de legenda
+                        </label>
+                        <label class="checkbox">
+                            <input id="propLegendLabel" type="checkbox">
+                            Exibir legenda perto do objeto
                         </label>
                         <button id="flipHorizontalBtn" type="button" class="secondary">Girar 30°</button>
                         <button type="submit">Atualizar item</button>
